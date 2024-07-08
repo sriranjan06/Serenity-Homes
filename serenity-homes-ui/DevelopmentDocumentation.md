@@ -30,4 +30,29 @@ now, for the right part of the header/navbar, we create an unordered list <ul> a
 import Link from react-router-dom
 wrap each of the <li> within a <Link to="/"> tag to ensure that routing takes places in the SPA without loading
 \\
+let us create our api folder
+go to the root directory of the project and type npm init -y
+create a folder called serenity-homes-api
+create an index.js file within the api folder
+install express within the root directory of the project with the command npm install express
+write this within the index.js in api folder
+import express from 'express';
+
+const app = express();
+
+app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+})
+got to root directory's package.json file and add type:"modules" after main:
+now, to run the file, type node serenity-homes-api/index.js in root directory terminal
+to ensure that the api/server side auto reloads, we need a package called nodemon
+npm install nodemon
+got to root package.json and delete the "test" under "scripts"
+write two new commands under "scripts" 
+    "dev": "nodemon serenity-homes-api/index.js",
+    "start": "node serenity-homes-api/index.js"
+now, npm run dev command will run nodemon and will start the server
+nodemon is used to restart the server automatically each time any changes are made to it
+mv .git ../ command is used to move the git tracking file from a child directory to a parent directory
+move the .gitignore file from the child directory into the root directory of the project so that all the node modules aren't pushed into the github repository
 
