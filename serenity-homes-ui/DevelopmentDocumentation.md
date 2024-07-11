@@ -37,7 +37,6 @@ create an index.js file within the api folder
 install express within the root directory of the project with the command npm install express
 write this within the index.js in api folder
 import express from 'express';
-
 const app = express();
 
 app.listen(3000, () => {
@@ -45,6 +44,7 @@ app.listen(3000, () => {
 })
 got to root directory's package.json file and add type:"modules" after main:
 now, to run the file, type node serenity-homes-api/index.js in root directory terminal
+\\
 to ensure that the api/server side auto reloads, we need a package called nodemon
 npm install nodemon
 got to root package.json and delete the "test" under "scripts"
@@ -66,15 +66,24 @@ after importing, below the import statement write mongoose.connect(process.env.M
 to be able to use the .env file, we need to install a package called dotenv
 npm install dotenv and within the api/index.js file, import dotenv from 'dotenv';
 configure the dotenv using dotenv.config();
-
+\\
 now, to ensure that the connection is estbalished to mongodb, modify the following: 
 mongoose.connect(process.env.MONGO).then(() => {
     console.log("Connected to MongoDB!");
 }).catch((err) => {
     console.log(err);
 })
-
+\\
 now you can see that the backend server is running without any issues
 now go to your .gitignore file and add .env so that the .env file isn't pushed to github. the .env file contains our password
 when you go to commit the file now, you can see that the .env file is not tracked for commit
 push code to github
+\\
+within api create another folder called models
+inside models, create a file called user.model.js
+inside user.model.js -> import mongoose
+set the rules of the Schema or model within this file
+const User = mongoose.model('User', userSchema);
+
+and then export default User
+
