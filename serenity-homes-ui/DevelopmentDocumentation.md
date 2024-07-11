@@ -55,4 +55,26 @@ now, npm run dev command will run nodemon and will start the server
 nodemon is used to restart the server automatically each time any changes are made to it
 mv .git ../ command is used to move the git tracking file from a child directory to a parent directory
 move the .gitignore file from the child directory into the root directory of the project so that all the node modules aren't pushed into the github repository
+npm install mongoose in root directory
+go to chrome and go to mongodb.com and login
+create a new cluster -> deployment -> database -> set up connection security -> set up connection method
+in the set up connection method Add your connection string into your application code
+now, come back to vscode and in the root directory create an environment variable file called .env
+within .env create a variable called MONGO = "" copy paste your mongodb connection string into this variable
+now, go to index.js under api and import mongoose from 'mongoose';
+after importing, below the import statement write mongoose.connect(process.env.MONGO);
+to be able to use the .env file, we need to install a package called dotenv
+npm install dotenv and within the api/index.js file, import dotenv from 'dotenv';
+configure the dotenv using dotenv.config();
 
+now, to ensure that the connection is estbalished to mongodb, modify the following: 
+mongoose.connect(process.env.MONGO).then(() => {
+    console.log("Connected to MongoDB!");
+}).catch((err) => {
+    console.log(err);
+})
+
+now you can see that the backend server is running without any issues
+now go to your .gitignore file and add .env so that the .env file isn't pushed to github. the .env file contains our password
+when you go to commit the file now, you can see that the .env file is not tracked for commit
+push code to github
