@@ -84,6 +84,24 @@ inside models, create a file called user.model.js
 inside user.model.js -> import mongoose
 set the rules of the Schema or model within this file
 const User = mongoose.model('User', userSchema);
-
 and then export default User
+\\
+we now create an api route
+api/index.js 
+here, we write app.use('/api/user', userRouter);
+under api, create a new folder called routes
+under routes, create a new file called user.route.js 
+inside user.route.js 
+import express from "express";
+
+const router = express.Router();
+
+router.get('/test', (req, res) => {
+    res.json({
+        message: 'Hello World',
+    })
+})
+
+export default router;
+now import userRouter from './routes/user.route.js' within api/index.js
 
