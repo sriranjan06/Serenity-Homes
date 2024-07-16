@@ -161,3 +161,36 @@ change password from password to passowrd: hashedPassword
 \\
 to ensure that the user does not enter duplicate username and email, we need to write our auth.controller.js code inside a try{}catch{} block
 catch the error and res.status(500).json(error.message);
+\\
+we create the middelware for handling errors
+we go to api/index.js and write app.use((err, req, res, next) => {})
+the four parameters are err -> error that has occured, req -> the type of request, res -> the body or the resulting message, next -> goes to the next error in the middleware
+the function is defined as: 
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    return res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message,
+    });
+});
+now, within the auth.controller.js file, we pass next as a parameter into the signup function.
+we call this next within the catch (error) {
+    next(error);
+}
+now when we pass a duplicate value, the we test in insomina and see that the server throws a more comprhensive error
+\\
+we can also write custom/user defined errors. this include errors such as password too long etc. 
+under api, we create a new folder called utils. 
+api/utils/error.js
+within error.js, we define:
+export const errorHandler = (statusCode, message) => {
+    const error = new Error();
+    error.statusCode = statusCode;
+    error.message = message;
+    return error
+}
+now, we can call the errorHandler function wherever we wish to display our custom error. Don't forget to import the error. 
+git push
+\\
