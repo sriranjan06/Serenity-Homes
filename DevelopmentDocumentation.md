@@ -194,3 +194,6 @@ export const errorHandler = (statusCode, message) => {
 now, we can call the errorHandler function wherever we wish to display our custom error. Don't forget to import the error. 
 git push
 \\
+we now move on to the creation of UI of sign up page
+designed the ui for sign-up page
+import { Link } from "react-router-dom";
