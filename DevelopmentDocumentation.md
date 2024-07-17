@@ -197,3 +197,62 @@ git push
 we now move on to the creation of UI of sign up page
 designed the ui for sign-up page
 import { Link } from "react-router-dom";
+\\
+adding funcionality to the sign-up page
+we add the onChange={handleChange} event listener to all three input fields
+we need to create a new function called handleChange since it is a user defined function
+along with that, we use a useState hook to store form data. The variable is called formData
+This holds the state of the previous input element within the form while the current element is being updated
+this is done with the help of the spread operator ...formData
+now we need to submit this information. to do this, we need to add an onSubmit={handleSubmit} event listener to the form tag
+define the handleSubmit function and e.preventDefault() to prevent refreshing the page
+we want to send the data, therefore we write it as: const res = await fetch("/api/auth/signup", formData);
+here res means response
+we got the ui and vite.config.js file
+we add the following code snippet under the defineConfig function:
+server: {
+    proxy: {
+      '/api': {
+        target: "http://localhost:3000",
+        secure: false,
+      },
+    },
+  },
+this is to show that wherever we find a url which has "/api" in it, we prefix "http://localhost:3000" to this so that it is hitting the correct endpoint always. Here the 3000 port is the backend port where we want to pass the data that we are collecting in the front end.
+now, we cannot just send formData the object as it is as it is not secure and good practice to do so. 
+we need to STRINGIFY it. 
+therefore, the handleSubmit function is written as: 
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+  };
+perfect! cross verify on mongodb -> serenity homes project -> databases -> browse configuration and we should be able to see the entered data in the database
+\\
+now we need to handle the loading of the page and handle the errors in the page
+we use two useStates that are setLoading and setError
+const [error, setError] = useState(null);
+const [loading, setLoading] = useState(false);
+within the handleSubmit function, we set the setLoading(true);
+if(data.success === false){
+    setLoading(false);
+}
+else we set it as false anyway outside the if statement
+enter this entire portion into try{}catch(error){} block and handle the setError() and setLoading() functions correctly
+add a conditional <p> tag as an error which displays the error onto the frontend screen
+perfect!
+\\
+now let us display a message called user created successfully onto our frontend
+we use the useNavigate hook from react-router-dom
+const navigate = useNavigate();
+and within the try catch block after setError(null), we write navigate("/sign-in");
+done!
+\\
+
+
