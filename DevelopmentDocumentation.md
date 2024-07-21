@@ -300,6 +300,17 @@ res
             .json(rest);
 now when we test the api on insomnia, we see that the preview does not have the password property showing. This is what we want.
 therefore the password won't be leaked to the user.
+git push
+\\
+Complete the sign in page functionality
+copy paste sign up page code and remove the excessive code and trim it to what is required for a sign in
+change the navigation route to home page
+change all sign up to sign in
+remove username, keep only email and password
+verify that the access_token is created and also verify that the cookie remains in session by refreshing the page and seeing
+try entering wrong credentials into sign in page to ensure that the correct errors are displayed
+git push
+\\
 
 
 
