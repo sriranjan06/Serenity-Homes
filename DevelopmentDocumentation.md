@@ -165,33 +165,33 @@ catch the error and res.status(500).json(error.message);
 we create the middelware for handling errors
 we go to api/index.js and write app.use((err, req, res, next) => {})
 the four parameters are err -> error that has occured, req -> the type of request, res -> the body or the resulting message, next -> goes to the next error in the middleware
-the function is defined as: 
+the function is defined as:
 app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    return res.status(statusCode).json({
-        success: false,
-        statusCode,
-        message,
-    });
+const statusCode = err.statusCode || 500;
+const message = err.message || 'Internal Server Error';
+return res.status(statusCode).json({
+success: false,
+statusCode,
+message,
+});
 });
 now, within the auth.controller.js file, we pass next as a parameter into the signup function.
 we call this next within the catch (error) {
-    next(error);
+next(error);
 }
 now when we pass a duplicate value, the we test in insomina and see that the server throws a more comprhensive error
 \\
-we can also write custom/user defined errors. this include errors such as password too long etc. 
-under api, we create a new folder called utils. 
+we can also write custom/user defined errors. this include errors such as password too long etc.
+under api, we create a new folder called utils.
 api/utils/error.js
 within error.js, we define:
 export const errorHandler = (statusCode, message) => {
-    const error = new Error();
-    error.statusCode = statusCode;
-    error.message = message;
-    return error
+const error = new Error();
+error.statusCode = statusCode;
+error.message = message;
+return error
 }
-now, we can call the errorHandler function wherever we wish to display our custom error. Don't forget to import the error. 
+now, we can call the errorHandler function wherever we wish to display our custom error. Don't forget to import the error.
 git push
 \\
 we now move on to the creation of UI of sign up page
@@ -211,28 +211,28 @@ here res means response
 we got the ui and vite.config.js file
 we add the following code snippet under the defineConfig function:
 server: {
-    proxy: {
-      '/api': {
-        target: "http://localhost:3000",
-        secure: false,
-      },
-    },
-  },
+proxy: {
+'/api': {
+target: "http://localhost:3000",
+secure: false,
+},
+},
+},
 this is to show that wherever we find a url which has "/api" in it, we prefix "http://localhost:3000" to this so that it is hitting the correct endpoint always. Here the 3000 port is the backend port where we want to pass the data that we are collecting in the front end.
-now, we cannot just send formData the object as it is as it is not secure and good practice to do so. 
-we need to STRINGIFY it. 
-therefore, the handleSubmit function is written as: 
+now, we cannot just send formData the object as it is as it is not secure and good practice to do so.
+we need to STRINGIFY it.
+therefore, the handleSubmit function is written as:
 const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-    const data = await res.json();
-  };
+e.preventDefault();
+const res = await fetch("/api/auth/signup", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+},
+body: JSON.stringify(formData),
+});
+const data = await res.json();
+};
 perfect! cross verify on mongodb -> serenity homes project -> databases -> browse configuration and we should be able to see the entered data in the database
 \\
 now we need to handle the loading of the page and handle the errors in the page
@@ -241,7 +241,7 @@ const [error, setError] = useState(null);
 const [loading, setLoading] = useState(false);
 within the handleSubmit function, we set the setLoading(true);
 if(data.success === false){
-    setLoading(false);
+setLoading(false);
 }
 else we set it as false anyway outside the if statement
 enter this entire portion into try{}catch(error){} block and handle the setError() and setLoading() functions correctly
@@ -266,17 +266,17 @@ else, if email was found, we need to check the password
 while checking the password, we need to compare the password currently input by the user and the existing password that has been encrypted and stored in the db
 const validPassword = bcryptjs.compareSync(password, validUser.password);
 \\
-if we need to ensure that the username and password is correct, we need to authenticate it. 
-we use cookies to authenticate the username and password inside the browser. 
+if we need to ensure that the username and password is correct, we need to authenticate it.
+we use cookies to authenticate the username and password inside the browser.
 we need to create a hash token that include the id of the user and we save this token inside the browser cookies.
 the best package to hash the data is json web tokens package.
-we now need to create the hashed value of the users using the JWT. 
+we now need to create the hashed value of the users using the JWT.
 in the root directory, npm install jsonwebtoken
 import at the top of the auth.controller.js file import jwt from 'jsonwebtoken';
-then within the try block after checking for validUsername and validPassword, we do const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
-_id is a primary key generated by mongodb. 
+then within the try block after checking for validUsername and validPassword, we do const token = jwt.sign({ id: validUser.\_id }, process.env.JWT_SECRET);
+\_id is a primary key generated by mongodb.
 process.env.JWT_SECRET is the key. the .env is a hidden file and it contains the JWT secret and must not be publicly hosted.
-the JWT_SECRET can be anything of your choice. 
+the JWT_SECRET can be anything of your choice.
 now, we take the response from the user and store it in a cookie and we call this cookie, "access_token"
 httpOnly: true for secure sites only to store the cookie
 json(validUser) is the part of the user information (username) that we are collecting and storing with the cookie
@@ -284,20 +284,20 @@ json(validUser) is the part of the user information (username) that we are colle
 now to check the api, we go to insomnia and create a folder called sign in
 the api call is post with url: localhost:3000/api/auth/signin
 we only need email and password in the body here
-we need to call the signin function written and exported in auth.controller.js into auth.route.js in the following way: 
+we need to call the signin function written and exported in auth.controller.js into auth.route.js in the following way:
 router.post("/signin", signin);
 make sure that signin is also imported at the top of auth.route.js
-perfect, now we test it, we get 200 OK which is the ok response we created and the cookie is created inside with the access_token as the variable which is a hashed value. 
-because it is not best practice to display the hashed password after authentication even on the console, we need to ensure that it is removed. 
-we add the following line: const { password: pass, ...rest } = validUser._doc;
-here, we are destructuring to extract the 'password' property and the rest of the properties from the 'validUser._doc' object
-'password: pass' extracts the 'password' property from the validUser._doc and renames it to 'pass'
-'...rest' collects the remaining properties of 'validUser._doc' into a new object called 'rest'
-then we rewrite the response as: 
+perfect, now we test it, we get 200 OK which is the ok response we created and the cookie is created inside with the access_token as the variable which is a hashed value.
+because it is not best practice to display the hashed password after authentication even on the console, we need to ensure that it is removed.
+we add the following line: const { password: pass, ...rest } = validUser.\_doc;
+here, we are destructuring to extract the 'password' property and the rest of the properties from the 'validUser.\_doc' object
+'password: pass' extracts the 'password' property from the validUser.\_doc and renames it to 'pass'
+'...rest' collects the remaining properties of 'validUser.\_doc' into a new object called 'rest'
+then we rewrite the response as:
 res
-            .cookie("access_token", token, { httpOnly: true })
-            .status(200)
-            .json(rest);
+.cookie("access_token", token, { httpOnly: true })
+.status(200)
+.json(rest);
 now when we test the api on insomnia, we see that the preview does not have the password property showing. This is what we want.
 therefore the password won't be leaked to the user.
 git push
@@ -316,10 +316,10 @@ go to the ui folder and install npm install @reduxjs/toolkit react-redux
 inside the ui folder, go to src folder. under src, create a folder called redux
 ui/src/redux/store.js
 paste boilerplate code here from https://redux-toolkit.js.org/tutorials/quick-start
-add this after reducer to ensure that we do not get serializable check: 
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-        serializableCheck: false,
-    }),
+add this after reducer to ensure that we do not get serializable check:
+middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+serializableCheck: false,
+}),
 now, we go to main.jsx and add the following
 import { store } from "./redux/store.js";
 import { Provider } from "react-redux";
@@ -328,9 +328,9 @@ now, we create a slices for the user
 inside the redux folder, we create another folder called user
 create userSlice.js inside the user folder and import { createSlice } from "@reduxjs/toolkit";
 set up the initialState
-initialState is an object that defines the initial state of the slice. in our case, we give it three properties: 
+initialState is an object that defines the initial state of the slice. in our case, we give it three properties:
 currentUser, error and loading
-currentUser will hold the user information when a user signs in successfully. 
+currentUser will hold the user information when a user signs in successfully.
 loading: Initially set to false, this indicates whether the sign-in process is currently ongoing.
 we create an object called userSlice using the in-built object createSlice which has the name, initialState and reducers as variables.
 createSlice is called with an object that defines the name of the slice, the initial state, and the reducers.
@@ -353,17 +353,50 @@ now we need to import the import userReducer from './user/userSlice.js'; in the 
 pass user: userReducer under reducers within the store function within store.js
 now we can use the useDispatch and useSelector within our sign in page
 import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
+signInStart,
+signInSuccess,
+signInFailure,
 } from "../redux/user/userSlice.js";
-then   const dispatch = useDispatch();
+then const dispatch = useDispatch();
 instead of setLoading(true); we can write dispatch(signInStart());
 we can replace all setLoading, setError etc. statements with dispatch() signInFailure, signInSuccess etc. appropriately
 we can remove the two hooks that we had declared on top and rewrite const { loading, error } = useSelector((state) => state.user);
-install extension redux devtool to test out redux 
+install extension redux devtool to test out redux
 try to sign in with correct credentials and wrong credentials. you can see the global state changes
 \\
+npm install redux-persist within the ui folder
+we need to rewrite some of our code as we need to ensure that as the global state management is happening, we do not lose our data if our page is refreshed. Instead, we need to store the data in the browser local storage
+rewrite store.js to this: import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import userReducer from './user/userSlice.js';
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
+const rootReducer = combineReducers({ user: userReducer });
 
+const persistConfig = {
+key: 'root',
+storage,
+version: 1,
+}
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+export const store = configureStore({
+reducer: persistedReducer,
+middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+serializableCheck: false,
+}),
+})
+
+export const persistor = persistStore(store);
+modify the main.jsx file with this:
+<Provider store={store}>
+<PersistGate loading={null} persistor={persistor}>
+<App />
+</PersistGate>
+</Provider>
+these are all the necessary imports:
+import { persistor, store } from "./redux/store.js";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+\\
+now we add continue with google button on the sign-in and sign-up pages 
