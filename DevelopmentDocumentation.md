@@ -407,31 +407,31 @@ we add an event handler called onClick = {handleGoogleClick}
 we define the handleGoogleClick function above the return statement. It must be asynchronous
 now just call the <Oauth /> components within the SignIn.jsx and SignUp.jsx pages after the sign-in/sign-up buttons respectively
 let us go to firebase and create our firebase account. new project named serenity-homes
-new web app called serenity-homes 
+new web app called serenity-homes
 npm install firebase within the ui folder
 create a file called ui/src/firebase.js
 copy paste the firebase sdk content from your web app with all the necessary information into this file
 we now need to export the last const as // Initialize Firebase
 export const app = initializeApp(firebaseConfig); from the firebase.js file.
-we need to create a new .env file within our ui folder which will hold the VITE_FIREBASE_API_KEY. 
+we need to create a new .env file within our ui folder which will hold the VITE_FIREBASE_API_KEY.
 rewrite the firebase key as -> apiKey: import.meta.env.VITE_FIREBASE_API_KEY
-now, go to the firebase console again continue to console 
+now, go to the firebase console again continue to console
 got to build on the left sidebar, click on authentication, get started sign-in methods, choose the provider we need (google in this case), enable, name it as Serenity Homes, the email associated is mine and click save.
 go to Oauth.jsx and write code within the try block
 const provider = new GoogleAuthProvider();
 import GoogleAuthProvider at the top from "firebase/auth";
 const auth = getAuth(app); the app we are passing here is the export const app = initializeApp(firebaseConfig); from firebase.js file.
-import getAuth from "firebase/auth" as well. 
+import getAuth from "firebase/auth" as well.
 declare new variable called result which holds the auth and provider details which is accessed through signInWithPopup() which is imported from "firebase/auth" again.
-when we console log the result, we can see that a lot of user data is obtained such as the name, email and photo. 
+when we console log the result, we can see that a lot of user data is obtained such as the name, email and photo.
 we want to use this infomration for the user logged in.
 we do this by storing data in our response variable res.
 we import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice.js";
 const dispatch = useDispatch();
-      const data = await res.json();
-      dispatch(signInSuccess(data));
-we are using the fetch() function to store the response data. 
+const data = await res.json();
+dispatch(signInSuccess(data));
+we are using the fetch() function to store the response data.
 we are hitting the api endpoint /api/auth/google
 this needs to be implemented at the backend as well
 \\
@@ -440,21 +440,45 @@ router.post("/google", google);
 go to api/controller/auth.controller.js
 we need to define a function called "google"
 this function must first find the email from the User model and store it inside a user variable
-if the user variable was successfully able to find the email, that means the user exists and we can proceed 
-we declare a token variable and assign it a value which is a combination of the user._id (mongodb) and JWT_SECRET. This creates a unique token for the user.
-then we declare a variable called rest, where we take all the user data using the user._doc and remove the password variable from the user data and store the remaining values into the new object variable called rest. we do this by destructuring the user._doc using the spread operator. 
-then we generate a response with the token being called access_token, httpOnly to ensure that it is secured and allowed only on http, status 200 which means success and return the body as a json and the object to be returned is rest. 
-else if the user does not exist, we need to generate a new password for this new user signing in through google. google sign in does not provide the password to the application, hence we generate our own. 
-then we hash the generated password. we create an object called newUser which has User object with username, email, generatedPassword and profilePhoto as variables. 
+if the user variable was successfully able to find the email, that means the user exists and we can proceed
+we declare a token variable and assign it a value which is a combination of the user.\_id (mongodb) and JWT_SECRET. This creates a unique token for the user.
+then we declare a variable called rest, where we take all the user data using the user.\_doc and remove the password variable from the user data and store the remaining values into the new object variable called rest. we do this by destructuring the user.\_doc using the spread operator.
+then we generate a response with the token being called access_token, httpOnly to ensure that it is secured and allowed only on http, status 200 which means success and return the body as a json and the object to be returned is rest.
+else if the user does not exist, we need to generate a new password for this new user signing in through google. google sign in does not provide the password to the application, hence we generate our own.
+then we hash the generated password. we create an object called newUser which has User object with username, email, generatedPassword and profilePhoto as variables.
 then we save this information into the newUser object.
 after this creation of newUser, we follow the same process of creating a token for the newUser, removing password field and store into rest, then setting the response as a body which returns an access_token as cookie, httpOnly, 200 status success and as a json.
 \\
-in oauth.jsx, let us import useNaviate and Navigate("/") after we successfully sign-in using google. 
+in oauth.jsx, let us import useNaviate and Navigate("/") after we successfully sign-in using google.
 we can verify that everything is working by redux debugger, network and response, application, localstorage etc. in the front end
 git push
 \\
+let us update the header section with the signed in user credentials. let us also make the home page private, if the user is not signed in, then they cannot view their profile page.
+go to Header.jsx component
+go to the last link which is <Link>Sign In</Link>
+change the link to <Link to="/profile"> and write a conditional within this
+{currentUser ? (
+<img src={currentUser.avatar}>
+) : (
+<li> Sign In </li>
+)}
+currentUser is a user-defined variable which is of the object type useSelector imported from react-redux
+import { useSelector } from "react-redux";
+const { currentUser } = useSelector((state) => state.user);
+state.user is the userSlice created in redux by me
 
+create a new component called PrivateRoute.jsx
+create currentUser here again using the useSelector from react-redux
+import { Outlet, Navigate } from "react-router-dom"; these are inbuilt components that we need
+we return a conditional for PrivateRoute.jsx component
+return currentUser ? <Outlet /> : <Navigate to="sign-in" />;
 
+go to the App.jsx file
+take the Profile route page and wrap it within the PrivateRoute component like this:
+<Route element={<PrivateRoute />}>
+<Route path="/profile" element={<Profile />} />
+</Route>
+git push
 
-
+\\
 
