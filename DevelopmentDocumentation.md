@@ -460,6 +460,7 @@ change the link to <Link to="/profile"> and write a conditional within this
 {currentUser ? (
 <img src={currentUser.avatar}>
 ) : (
+
 <li> Sign In </li>
 )}
 currentUser is a user-defined variable which is of the object type useSelector imported from react-redux
@@ -481,4 +482,11 @@ take the Profile route page and wrap it within the PrivateRoute component like t
 git push
 
 \\
+complete profile page ui
+import {useSelector} from "react-redux"
+define object variable:
+const { currentUser } = useSelector((state) => state.user);
+then use the src={currentUser.avatar} within the <img /> to diaplay the profile picture
+design all other functionalities on the page
 
+\\
