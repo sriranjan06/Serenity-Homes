@@ -490,3 +490,142 @@ then use the src={currentUser.avatar} within the <img /> to diaplay the profile 
 design all other functionalities on the page
 
 \\
+complete image upload functionality for profile page
+we add the useRef hook to the Profile.jsx file. decalre fileRef of type useRef
+const fileRef = useRef(null); // useRef means that the variables do not change upon referesh/re-render
+add onClick={} event listener to the <img /> tag for the profile pic
+onClick={() => fileRef.current.click} here we declare the anonymous function within the event listener
+create a file input type right above this profile image, keep it hidden ref={fileRef} and accept="image/\*"
+now to ensure that only images are uploaded, we need to add a few constraints to the firebase database
+
+firebase -> console -> serenity-homes -> build -> storage -> get started -> start in production mode -> choose location -> done!
+now we need to add rules to the firebase storage:
+
+```
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+      allow write: if
+      request.resource.size < 2 * 1024 * 1024 &&
+      request.resource.contentType.matches('image/.*')
+    }
+  }
+}
+```
+
+on Profile.jsx, go to the <input type="file"> tag and add the onChange={(e) => setFile(e.target.files[0])} event listener
+we use useState snippet and define const [file, setFile] = useState(undefined);
+setFile is what the updated image is goinng to be, whereas, we handle the file using a useEffect hook. 
+
+```
+  useEffect(() => {
+    if (file) {
+      handleFileUpload(file);
+    }
+  }, [file]);
+```
+
+no we define the handleFileUpload() function. This is our main function to handle the input file.
+
+```
+  const handleFileUpload = (file) => {
+    const storage = getStorage(app);
+    const fileName = new Date().getTime() + file.name;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePerc(Math.round(progress));
+      },
+      (error) => {
+        setFileUploadError(true);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData({ ...formData, avatar: downloadURL });
+        });
+      }
+    );
+  };
+```
+here we 
+import {getStorage} from "firebase/storage"; 
+const storage = getStorage(app) , the app here is the entire firebase.js function that we're calling.
+we declare variable const fileName and suffix the file.name being uploaded with Date().getTime() for maintaining unique name constarint for the image.
+storageRef object variable stores the storage and fileName variables as a reference (the data is not refershed with each re-render).
+
+``` 
+    const uploadTask = uploadBytesResumable(storageRef, file);
+```
+
+the above line of code can be explained this way: 
+1. storageRef: This is a reference to the location in the storage service where the file will be uploaded. It's typically created using something like firebase.storage().ref().
+2. file: This represents the file you want to upload. It could be a file object obtained from an input element or another source.
+3. uploadBytesResumable: This is a function that starts the upload of the file to the specified storageRef. It returns an UploadTask object, which can be used to monitor and control the upload process, such as pausing, resuming, and canceling the upload, as well as tracking progress and handling errors.
+
+.on() is a firebase function that is used to monitor changes in data. This listens for changes at a specific reference in the Firebase database and triggers the callback whenever data changes.
+
+``` 
+uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePerc(Math.round(progress));
+      },
+      (error) => {
+        setFileUploadError(true);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData({ ...formData, avatar: downloadURL });
+        });
+      }
+    );
+``` 
+
+this above function is used to display the image uploading process. 
+we import { getDownloadURL } from "firebase/storage";
+we do 
+
+```
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData({ ...formData, avatar: downloadURL });
+        });
+```
+
+we pass downloadURL and the newly uploaded image avatar is overridden and stored within the avatar variable from the downloadURL. 
+it contains the link of the newly uploaded image.
+
+we define this to show the uploading process to the user: 
+```
+        <p className="text-sm self-center">
+          {fileUploadError ? (
+            <span className="text-red-700">
+              Error image upload (Image must be less than 2 mb)
+            </span>
+          ) : filePerc > 0 && filePerc < 100 ? (
+            <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
+          ) : filePerc === 100 ? (
+            <span className="text-green-700">Image successfully uploaded!</span>
+          ) : (
+            ""
+          )}
+        </p>
+```
+
+git push
+
+\\
+
+
