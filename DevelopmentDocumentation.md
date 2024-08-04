@@ -627,5 +627,90 @@ we define this to show the uploading process to the user:
 git push
 
 \\
+creating update user api route
 
+go to api/routes/user.route.js
+within this file, write: 
+router.post('/update/:id', updateUser); 
+
+we need to go to api/controllers/user.controller.js 
+declare function updateUser: 
+export const updateUser = (req, res, next) => {}
+
+now we import this same updateUser function into user.route.js file. 
+
+next, we go to api/utils and create a new file called verifyUser.js
+in the root folder of our project, we need to install another package called cookie parser
+
+``` npm install cookie-parser ```
+we need to initialse this cookie parser within our api. 
+api/index.js
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
+
+now we have initialised it. go to verifyUser.js
+```
+import { errorHandler } from "./error.js";
+import jwt from 'jsonwebtoken';
+
+export const verifyToken = (req, res, next) => {
+    const token = req.cookies.access_token;
+
+    if (!token) {
+        return next(errorHandler(401, 'Unauthorized'));
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            return next(errorHandler(403, 'Forbidden'));
+        }
+        req.user = user;
+        next();
+    });
+}
+```
+
+go to api/routes/user.route.js
+import { verifyToken } from "../utils/verifyUser.js";
+router.post('/update/:id', verifyToken, updateUser);
+
+go to api/controllers/user.controller.js 
+here we define the updateUser function
+
+```
+export const updateUser = async (req, res, next) => {
+    if (req.user.id !== req.params.id) {
+        return next(errorHandler(401, 'You can only update your own account!'));
+    }
+
+    try {
+        if (req.body.password) {
+            req.body.password = bcryptjs.hashSync(req.body.password, 10);
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, {
+            $set: {
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                avatar: req.body.avatar,
+            },
+        }, { new: true });
+
+        const { password, ...rest } = updatedUser._doc;
+        res.status(200).json(rest);
+
+    } catch (error) {
+        next(error);
+    }
+}
+```
+
+now we can test this on insomnia
+create a folder called user 
+create a post api call called update user
+http://localhost:3000/api/user/update/:id this is the endpoint to test the updateUser api.
+
+git push
+\\
 
