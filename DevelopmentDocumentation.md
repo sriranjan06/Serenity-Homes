@@ -867,3 +867,77 @@ test this out on insomnia with a seperate DELETE method ``` localhost:3000/api/u
 git push
 
 \\
+
+Add sign out user functionality
+This is the exact same as delete use functionality: 
+1. go to api 
+2. api/controllers/auth.controller.js and define signOut function in the backend: 
+``` 
+export const signOut = async (req, res, next) => {
+    try {
+        res.clearCookie('access_token');
+        res.status(200).json('User has been logged out!');
+    } catch (error) {
+        next(error);
+    }
+}
+```
+3. go to api/routes/auth.route.js and import the signOut function from auth.controller.js
+```
+router.get("/signout", signOut);
+```
+4. go to frontend. ui/src/redux/user/userSlice.js
+5. define three reducers for the signOut functionality: 
+```
+signOutUserStart: (state) => {
+            state.loading = true;
+        },
+        signOutUserSuccess: (state) => {
+            state.currentUser = null;
+            state.loading = false;
+            state.error = null;
+        },
+        signOutUserFailure: (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        },
+```
+6. export these reducers
+```
+export const { 
+  signOutUserStart,
+  signOutUserSuccess,
+  signOutUserFailure,
+} = userSlice.actions;
+export default userSlice.reducer;
+```
+7. ui/src/pages/Profile.jsx and go to the <span>Sign Out</span>
+8. add an event listener to this <span>
+``` 
+onClick={handleSignOut}
+```
+9. define the handleSignOut function: 
+```
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutUserStart());
+
+      const res = await fetch("api/auth/signout");
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(data.message));
+    }
+  };
+```
+
+git push
+
+\\
+Add create listing API route
