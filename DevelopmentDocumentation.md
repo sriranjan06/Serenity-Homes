@@ -779,6 +779,91 @@ we declare two paragraph tags to show updating progress and errors outside the f
 git push
 
 \\
+Delete user functionality
+go to api/controllers/user.controller.js
+declare the function: 
 
+```
+export const deleteUser = async (req, res, next) => {
 
+}
+```
 
+go to api/routes/user.route.js and define: 
+``` router.delete('/delete/:id', verifyToken, deleteUser); ```
+
+go back to user.controller.js and define the deleteUser function clearly: 
+```
+export const deleteUser = async (req, res, next) => {
+    if (req.user.id !== req.params.id) {
+        return next(errorHandler(401, "You can only delete your own account!"));
+    }
+
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.clearCookie('access_token');
+        res.status(200).json("User has been deleted!");
+    } catch (error) {
+        next(error);
+    }
+}
+```
+The req.user.id comes from api/utils/verifyUser.js through the jwt.verify();
+The req.params.id comes from api/routes/user.route.js through  router.delete('/delete/:id', verifyToken, deleteUser); where the ':id' is the params
+
+No we go to the frontend.
+ui/src/redux/user/userSlice.js
+
+Here we declare three more reducers that are: 
+```
+        deleteUserStart: (state) => {
+            state.loading = true;
+        },
+        deleteUserSuccess: (state) => {
+            state.currentUser = null;
+            state.loading = false;
+            state.error = null;
+        },
+        deleteUserFailure: (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        },
+```
+Then we export these actions and reducers 
+export const {
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure
+} = userSlice.actions;
+export default userSlice.reducer;
+
+Now we go to Profile.jsx and we import these reducers from userSlice.js
+go to the <span>Delete</span> and add an event listener: 
+onClick={handleDeleteUser}
+Then we define the handleDeleteUser function: 
+
+```
+const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+```
+
+test this out on insomnia with a seperate DELETE method ``` localhost:3000/api/user/delete/:id ```
+git push
+
+\\
