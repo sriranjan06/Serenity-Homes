@@ -712,5 +712,73 @@ create a post api call called update user
 http://localhost:3000/api/user/update/:id this is the endpoint to test the updateUser api.
 
 git push
+
 \\
+complete update user functionality and link frontend and backend
+
+we start with ui/src/redux/user/userSlice.js
+here we declare three reducers { updateUserStart, updateUserSuccess, updateUserFailure }
+then we export these are userSlice.actions to make these reducers accessible globally
+
+go to ui/src/pages/Profile.jsx
+``` 
+import {
+  updateUserStart,
+  updateUserFailure,
+  updateUserSuccess,
+} from "../redux/user/userSlice.js"; 
+```
+we also need to import ``` import { useSelector, useDispatch } from "react-redux"; ``` in order to use the reducers in our Profile.jsx file
+
+useStateSnippet for const [formData, setFormData] = useState({}) initialize as an empty object
+we always need to declare const dispatch = useDispatch(); if we need to use the reducer.
+
+```   const { currentUser, loading, error } = useSelector((state) => state.user); ``` This is how we get the state of the current user into currentUser variable.
+
+go to the input fields of username, email and fefaultValue = {currentUser.username}
+at the beginning of the <form> tag, we declare an event listener <form onSubmit={handleSubmit}>
+
+now we define the handleSubmit function as: 
+```
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+    }
+  };
+```
+
+we also add onChange={handleChange} event listeners to our username, email and password fields to be handle changes in the following manner: 
+```   
+const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+```
+
+we declare two paragraph tags to show updating progress and errors outside the form tag for progress feedback to the user.
+git push
+
+\\
+
+
 
