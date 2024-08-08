@@ -941,3 +941,135 @@ git push
 
 \\
 Add create listing API route
+first we create a model called listing.model.js 
+this will be the JSON that we store in our mongodb
+api/models/listing.model.js
+
+```
+import mongoose from "mongoose";
+
+const listingSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
+    regularPrice: {
+        type: Number,
+        required: true,
+    },
+    discountPrice: {
+        type: Number,
+        required: true,
+    },
+    bathrooms: {
+        type: Number,
+        required: true,
+    },
+    furnished: {
+        type: Boolean,
+        required: true,
+    },
+    parking: {
+        type: Boolean,
+        required: true,
+    },
+    type: {
+        type: String,
+        required: true,
+    },
+    offer: {
+        type: Boolean,
+        required: true,
+    },
+    imageUrls: {
+        type: Array,
+        required: true,
+    },
+    userRef: {
+        type: String,
+        required: true,
+    },
+}, {
+    timestamps: true
+});
+
+const Listing = mongoose.model("Listing", listingSchema);
+
+export default Listing; 
+```
+we export default Listing. 
+then we go to api/routes/listing.route.js
+here we create the route
+
+```
+import express from "express";
+import { createListing } from "../controllers/listing.controller.js";
+import { verifyToken } from "../utils/verifyUser.js";
+
+const router = express.Router();
+
+router.post('/create', verifyToken, createListing);
+
+export default router;
+
+```
+as you can see, in our router.post(), we are calling a function called createListing. We need to define this createListing function
+The createListing function is defined in api/controllers/listing.controller.js
+```
+import Listing from "../models/listing.model.js";
+
+export const createListing = async (req, res, next) => {
+    try {
+        const listing = await Listing.create(req.body);
+        return res.status(201).json(listing);
+    } catch (error) {
+        next(error);
+    }
+}
+```
+now we need to use this listing route in our application
+we go to api/index.js
+```
+import listingRouter from './routes/listing.route.js';
+
+app.use('/api/listing', listingRouter);
+```
+
+now we test this in insomnia
+create a new folder called listing
+create a POST request called create listing with the link: localhost:3000/api/listing/create 
+add the following JSON in the body and send: 
+```
+{
+	"name": "test",
+	"description": "test",
+	"address": "test", 
+	"regularPrice": 500,
+	"discountPrice": 500,
+	"bathrooms": 5, 
+	"bedrooms": 5, 
+	"furnished": true, 
+	"parking": true, 
+	"type": "rent", 
+	"offer": true, 
+	"imageUrls": ["abcdef", "ghijkl"],
+	"userRef": "hahahahahaha"
+}
+```
+
+this will succeed. 
+git push
+
+\\
+Complete create listing page UI
+
+
+
