@@ -1235,6 +1235,130 @@ git push
 
 \\
 Complete create listing page functionality
+import useSelector for using currentUser details
+import useNavigate from react-router-dom to navigate to different pages
+
+```
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+```
+
+declare currentUser and naviagate
+```
+  const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+```
+
+declare all the default values of all the variables of the form
+```
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+    name: "",
+    description: "",
+    address: "",
+    type: "rent",
+    bedrooms: 1,
+    bathrooms: 1,
+    regularPrice: 50,
+    discountPrice: 0,
+    offer: false,
+    parking: false,
+    furnished: false,
+  });
+```
+
+useStates for loading and errors 
+```
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+```
+
+add onChange={handleChange} event listeners and value={} for every single input field in the form
+define the handleChange function which specifically caters to the different types of input that we accept
+
+```
+const handleChange = (e) => {
+    // This if is for sale and rent
+    if (e.target.id === "sale" || e.target.id === "rent") {
+      setFormData({
+        ...formData,
+        type: e.target.id,
+      });
+    }
+
+    // This if is for parking, furnished and offer
+    if (
+      e.target.id === "parking" ||
+      e.target.id === "furnished" ||
+      e.target.id === "offer"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.checked,
+      });
+    }
+
+    // This if is for name, description and address
+    if (
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.value,
+      });
+    }
+  };
+```
+
+then add a submit functionality for the entire form with all of its variables
+``` <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4"> ```
+
+define the handleSubmit function: 
+```
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (formData.imageUrls.length < 1) {
+        return setError("You must upload at least one image!");
+      }
+
+      if (+formData.regularPrice < +formData.discountPrice) {
+        return setError("Discount price must be lower than regular price!");
+      }
+
+      setLoading(true);
+      setError(false);
+
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id,
+        }),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success === false) {
+        setError(data.message);
+      }
+      navigate(`/listing/${data._id}`);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+```
+
+git push
+
+\\
 
 
 
