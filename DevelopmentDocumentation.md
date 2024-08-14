@@ -1359,6 +1359,41 @@ const handleSubmit = async (e) => {
 git push
 
 \\
+Create get user listings API route
+
+go to api/controllers/user.controller.js
+define the getUserListings function
+```
+export const getUserListings = async (req, res, next) => {
+    if (req.user.id === req.params.id) {
+        try {
+            const listings = await Listing.find({
+                userRef: req.params.id
+            });
+
+            res.status(200).json(listings);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        return next(errorHandler(401, "You can only view your own listings here!"));
+    }
+}
+```
+
+then go to api/routes/user.route.js and create an endpoint for this function
+```
+import { getUserListings } from "../controllers/user.controller.js";
+router.get('/listings/:id', verifyToken, getUserListings);
+```
+
+test on insomnia
+
+git push
+
+\\ 
+Complete show user listings functionality
+
 
 
 
