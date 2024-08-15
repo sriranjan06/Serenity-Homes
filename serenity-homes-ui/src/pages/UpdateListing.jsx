@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -7,12 +7,13 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase.js";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-const CreateListing = () => {
+const UpdateListing = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
+  const params = useParams();
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -31,6 +32,24 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/get/${listingId}`);
+      const data = await res.json();
+
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setFormData(data);
+    };
+
+    fetchListing();
+  }, []);
+
+  console.log(formData);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -141,7 +160,7 @@ const CreateListing = () => {
       setLoading(true);
       setError(false);
 
-      const res = await fetch("/api/listing/create", {
+      const res = await fetch(`/api/listing/update/${params.listingId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -168,7 +187,7 @@ const CreateListing = () => {
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
-        Create Listing
+        Update Listing
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         {/* Left column */}
@@ -379,7 +398,7 @@ const CreateListing = () => {
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
           >
-            {loading ? "Creating..." : "Create listing"}
+            {loading ? "Updating..." : "Update listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
@@ -388,4 +407,4 @@ const CreateListing = () => {
   );
 };
 
-export default CreateListing;
+export default UpdateListing;

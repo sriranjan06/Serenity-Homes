@@ -1518,6 +1518,59 @@ git push
 \\
 Complete update listing functionality
 
+1. go to api/controllers/listing.controller.js and define the getListing function here
+```
+export const getListing = async (req, res, next) => {
+    try {
+        const listing = await Listing.findById(req.params.id);
+
+        if (!listing) {
+            return next(errorHandler(404, "Listing not found!"));
+        }
+        res.status(200).json(listing);
+    } catch (error) {
+        next(error);
+    }
+}
+```
+
+2. create the route to get this listing with 
+```
+import { getListing } from "../controllers/listing.controller.js";
+router.get('/get/:id', getListing);
+```
+
+3. go to ui/src/pages and create a new page called UpdateListing.jsx
+copy all the contents of the CreateListing.jsx page into the UpdateListing.jsx and change create to update everywhere
+
+4. go to App.jsx 
+```
+import UpdateListing from "./pages/UpdateListing";
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/create-listing" element={<CreateListing />} />
+          <Route
+            path="/update-listing/:listingId"
+            element={<UpdateListing />}
+          />
+        </Route>
+```
+
+5. go to the profile page and add a <Link></Link> tag which is imported from react-router-dom
+```
+                <Link to={`/update-listing/${listing._id}`}>
+                  <button className="text-green-700 uppercase">Edit</button>
+                </Link>
+```
+
+read the UpdateListing.jsx more carefully for better understanding!
+
+git push
+
+\\
+Add image slider to the listing page
+
+
 
 
 
