@@ -1473,6 +1473,50 @@ git push
 
 \\
 Create update listing API route
+follow the same process of building the api as we did for delete. 
+
+1. go to api/controllers/listing.controller.js
+```
+export const updateListing = async (req, res, next) => {
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+        return next(errorHandler(404, "Listing not found!"));
+    }
+
+    if (req.user.id !== listing.userRef) {
+        return next(errorHandler(401, "You can only update your own listings!"));
+    }
+
+    try {
+        const updatedListing = await Listing.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }, // This gives the updated list of values
+        );
+
+        res.status(200).json(updatedListing);
+
+    } catch (error) {
+        next(error);
+    }
+}
+```
+
+2. go to api/routes/listing.route.js
+```
+import updateListing from "../controllers/listing.controller.js";
+router.post('/update/:id', verifyToken, updateListing);
+```
+
+3. test on insomnia
+under listing create a post request and name it update a listing
+the link ``` localhost:3000/api/listing/update/:id ```
+
+git push
+
+\\
+Complete update listing functionality
 
 
 
