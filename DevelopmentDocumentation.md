@@ -1396,6 +1396,84 @@ Complete show user listings functionality
 finish designing the UI for this
 
 \\
+Complete delete user listing functionality
+1. go to api/controllers/listing.controller.js 
+define the function to delete the user listing
+
+```
+export const deleteListing = async (req, res, next) => {
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+        return next(errorHandler(404, "Listing not found!"));
+    }
+
+    if (req.user.id !== listing.userRef) {
+        return next(errorHandler(401, "You can only delete your own listing!"));
+    } 
+
+    try {
+        await Listing.findByIdAndDelete(req.params.id);
+        res.status(200).json("Listing has been deleted!")
+    } catch (error) {
+        next(error);
+    }
+}
+```
+
+2. go to api/routes/listing.route.js
+
+import the deleteListing function
+``` import {deleteListing} from "../controllers/listing.controller.js"; ```
+
+create the api call and its endpoint
+
+``` router.delete('/delete/:id', verifyToken, deleteListing); ```
+
+3. go to ui/src/pages/Profile.jsx
+
+go to the <button>Delete</button> and add an onClick event listener to this
+```
+<button
+  onClick={() => handleListingDelete(listing._id)}
+  className="text-red-700 uppercase"
+>
+  Delete
+</button>
+```
+
+4. define the handleListingDelete() function
+```
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+
+      setUserListings((prev) => {
+        prev.filter((listing) => listing._id !== listingId);
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+```
+
+test on insomnia
+create a delete request with api: http://localhost:3000/api/listing/delete/:id 
+test it for a particular user and try to delete each listing
+
+git push
+
+\\
+Create update listing API route
+
 
 
 
