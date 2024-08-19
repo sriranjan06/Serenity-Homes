@@ -1585,7 +1585,10 @@ git push
 
 \\
 Complete listing page
+design the listing page completely
 
+\\
+Add contact landlord functionality completely
 
 
 
