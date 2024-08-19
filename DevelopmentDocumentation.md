@@ -1570,6 +1570,22 @@ git push
 \\
 Add image slider to the listing page
 
+1. go to ui/src/pages and create Listing.jsx
+
+2. go to ui root folder and ``` npm install swiper ```
+
+3. go to App.jsx and import the page 
+``` import Listing from "./pages/Listing"; ``` 
+
+4. This is a public page so just declare this page as a Route within the Routes
+``` <Route path="/listing/:listingId" element={<Listing />} /> ```
+
+This basically adds the image swiping functionality for our listing pages
+git push
+
+\\
+Complete listing page
+
 
 
 
