@@ -1590,6 +1590,35 @@ design the listing page completely
 \\
 Add contact landlord functionality completely
 
+1. go to api/controllers/user.controller.js and write the getUser function
+```
+export const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(errorHandler(404, 'User not found!'));
+        }
+
+        const { password: pass, ...rest } = user._doc;
+        res.status(200).json(rest);
+    } catch (error) {
+        next(error);
+    }
+};
+```
+
+2. go to api/routes/user.route.js
+```
+import { deleteUser, test, updateUser, getUserListings, getUser } from "../controllers/user.controller.js";
+router.get('/:id', verifyToken, getUser);
+```
+
+3. Design the entire Contact page and update the changes in Listing.jsx as well so that it can successfully write an email to the user
+
+\\
+### Create search API route
+
+
 
 
 
