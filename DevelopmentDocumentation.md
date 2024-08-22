@@ -1875,5 +1875,11 @@ Re-runs the effect whenever location.search changes.
 
 \\
 Create search page UI
+designed the UI for Search.jsx
+
+\\
+Add onChange and onSubmit functionality to the search page
+
+
 
 
