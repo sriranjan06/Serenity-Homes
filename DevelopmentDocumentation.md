@@ -521,7 +521,7 @@ service firebase.storage {
 
 on Profile.jsx, go to the <input type="file"> tag and add the onChange={(e) => setFile(e.target.files[0])} event listener
 we use useState snippet and define const [file, setFile] = useState(undefined);
-setFile is what the updated image is goinng to be, whereas, we handle the file using a useEffect hook. 
+setFile is what the updated image is goinng to be, whereas, we handle the file using a useEffect hook.
 
 ```
   useEffect(() => {
@@ -558,24 +558,26 @@ no we define the handleFileUpload() function. This is our main function to handl
     );
   };
 ```
-here we 
-import {getStorage} from "firebase/storage"; 
+
+here we
+import {getStorage} from "firebase/storage";
 const storage = getStorage(app) , the app here is the entire firebase.js function that we're calling.
 we declare variable const fileName and suffix the file.name being uploaded with Date().getTime() for maintaining unique name constarint for the image.
 storageRef object variable stores the storage and fileName variables as a reference (the data is not refershed with each re-render).
 
-``` 
+```
     const uploadTask = uploadBytesResumable(storageRef, file);
 ```
 
-the above line of code can be explained this way: 
+the above line of code can be explained this way:
+
 1. storageRef: This is a reference to the location in the storage service where the file will be uploaded. It's typically created using something like firebase.storage().ref().
 2. file: This represents the file you want to upload. It could be a file object obtained from an input element or another source.
 3. uploadBytesResumable: This is a function that starts the upload of the file to the specified storageRef. It returns an UploadTask object, which can be used to monitor and control the upload process, such as pausing, resuming, and canceling the upload, as well as tracking progress and handling errors.
 
 .on() is a firebase function that is used to monitor changes in data. This listens for changes at a specific reference in the Firebase database and triggers the callback whenever data changes.
 
-``` 
+```
 uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -592,11 +594,11 @@ uploadTask.on(
         });
       }
     );
-``` 
+```
 
-this above function is used to display the image uploading process. 
+this above function is used to display the image uploading process.
 we import { getDownloadURL } from "firebase/storage";
-we do 
+we do
 
 ```
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
@@ -604,10 +606,11 @@ we do
         });
 ```
 
-we pass downloadURL and the newly uploaded image avatar is overridden and stored within the avatar variable from the downloadURL. 
+we pass downloadURL and the newly uploaded image avatar is overridden and stored within the avatar variable from the downloadURL.
 it contains the link of the newly uploaded image.
 
-we define this to show the uploading process to the user: 
+we define this to show the uploading process to the user:
+
 ```
         <p className="text-sm self-center">
           {fileUploadError ? (
@@ -630,25 +633,26 @@ git push
 creating update user api route
 
 go to api/routes/user.route.js
-within this file, write: 
-router.post('/update/:id', updateUser); 
+within this file, write:
+router.post('/update/:id', updateUser);
 
-we need to go to api/controllers/user.controller.js 
-declare function updateUser: 
+we need to go to api/controllers/user.controller.js
+declare function updateUser:
 export const updateUser = (req, res, next) => {}
 
-now we import this same updateUser function into user.route.js file. 
+now we import this same updateUser function into user.route.js file.
 
 next, we go to api/utils and create a new file called verifyUser.js
 in the root folder of our project, we need to install another package called cookie parser
 
-``` npm install cookie-parser ```
-we need to initialse this cookie parser within our api. 
+`npm install cookie-parser`
+we need to initialse this cookie parser within our api.
 api/index.js
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
 now we have initialised it. go to verifyUser.js
+
 ```
 import { errorHandler } from "./error.js";
 import jwt from 'jsonwebtoken';
@@ -674,7 +678,7 @@ go to api/routes/user.route.js
 import { verifyToken } from "../utils/verifyUser.js";
 router.post('/update/:id', verifyToken, updateUser);
 
-go to api/controllers/user.controller.js 
+go to api/controllers/user.controller.js
 here we define the updateUser function
 
 ```
@@ -707,7 +711,7 @@ export const updateUser = async (req, res, next) => {
 ```
 
 now we can test this on insomnia
-create a folder called user 
+create a folder called user
 create a post api call called update user
 http://localhost:3000/api/user/update/:id this is the endpoint to test the updateUser api.
 
@@ -721,24 +725,27 @@ here we declare three reducers { updateUserStart, updateUserSuccess, updateUserF
 then we export these are userSlice.actions to make these reducers accessible globally
 
 go to ui/src/pages/Profile.jsx
-``` 
+
+```
 import {
   updateUserStart,
   updateUserFailure,
   updateUserSuccess,
-} from "../redux/user/userSlice.js"; 
+} from "../redux/user/userSlice.js";
 ```
-we also need to import ``` import { useSelector, useDispatch } from "react-redux"; ``` in order to use the reducers in our Profile.jsx file
+
+we also need to import `import { useSelector, useDispatch } from "react-redux";` in order to use the reducers in our Profile.jsx file
 
 useStateSnippet for const [formData, setFormData] = useState({}) initialize as an empty object
 we always need to declare const dispatch = useDispatch(); if we need to use the reducer.
 
-```   const { currentUser, loading, error } = useSelector((state) => state.user); ``` This is how we get the state of the current user into currentUser variable.
+`  const { currentUser, loading, error } = useSelector((state) => state.user);` This is how we get the state of the current user into currentUser variable.
 
 go to the input fields of username, email and fefaultValue = {currentUser.username}
 at the beginning of the <form> tag, we declare an event listener <form onSubmit={handleSubmit}>
 
-now we define the handleSubmit function as: 
+now we define the handleSubmit function as:
+
 ```
 const handleSubmit = async (e) => {
     e.preventDefault();
@@ -768,8 +775,9 @@ const handleSubmit = async (e) => {
   };
 ```
 
-we also add onChange={handleChange} event listeners to our username, email and password fields to be handle changes in the following manner: 
-```   
+we also add onChange={handleChange} event listeners to our username, email and password fields to be handle changes in the following manner:
+
+```
 const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -781,7 +789,7 @@ git push
 \\
 Delete user functionality
 go to api/controllers/user.controller.js
-declare the function: 
+declare the function:
 
 ```
 export const deleteUser = async (req, res, next) => {
@@ -789,10 +797,11 @@ export const deleteUser = async (req, res, next) => {
 }
 ```
 
-go to api/routes/user.route.js and define: 
-``` router.delete('/delete/:id', verifyToken, deleteUser); ```
+go to api/routes/user.route.js and define:
+`router.delete('/delete/:id', verifyToken, deleteUser);`
 
-go back to user.controller.js and define the deleteUser function clearly: 
+go back to user.controller.js and define the deleteUser function clearly:
+
 ```
 export const deleteUser = async (req, res, next) => {
     if (req.user.id !== req.params.id) {
@@ -808,13 +817,15 @@ export const deleteUser = async (req, res, next) => {
     }
 }
 ```
+
 The req.user.id comes from api/utils/verifyUser.js through the jwt.verify();
-The req.params.id comes from api/routes/user.route.js through  router.delete('/delete/:id', verifyToken, deleteUser); where the ':id' is the params
+The req.params.id comes from api/routes/user.route.js through router.delete('/delete/:id', verifyToken, deleteUser); where the ':id' is the params
 
 No we go to the frontend.
 ui/src/redux/user/userSlice.js
 
-Here we declare three more reducers that are: 
+Here we declare three more reducers that are:
+
 ```
         deleteUserStart: (state) => {
             state.loading = true;
@@ -829,18 +840,19 @@ Here we declare three more reducers that are:
             state.loading = false;
         },
 ```
-Then we export these actions and reducers 
+
+Then we export these actions and reducers
 export const {
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure
+deleteUserStart,
+deleteUserSuccess,
+deleteUserFailure
 } = userSlice.actions;
 export default userSlice.reducer;
 
 Now we go to Profile.jsx and we import these reducers from userSlice.js
-go to the <span>Delete</span> and add an event listener: 
+go to the <span>Delete</span> and add an event listener:
 onClick={handleDeleteUser}
-Then we define the handleDeleteUser function: 
+Then we define the handleDeleteUser function:
 
 ```
 const handleDeleteUser = async () => {
@@ -863,16 +875,18 @@ const handleDeleteUser = async () => {
   };
 ```
 
-test this out on insomnia with a seperate DELETE method ``` localhost:3000/api/user/delete/:id ```
+test this out on insomnia with a seperate DELETE method `localhost:3000/api/user/delete/:id`
 git push
 
 \\
 
 Add sign out user functionality
-This is the exact same as delete use functionality: 
-1. go to api 
-2. api/controllers/auth.controller.js and define signOut function in the backend: 
-``` 
+This is the exact same as delete use functionality:
+
+1. go to api
+2. api/controllers/auth.controller.js and define signOut function in the backend:
+
+```
 export const signOut = async (req, res, next) => {
     try {
         res.clearCookie('access_token');
@@ -882,12 +896,16 @@ export const signOut = async (req, res, next) => {
     }
 }
 ```
+
 3. go to api/routes/auth.route.js and import the signOut function from auth.controller.js
+
 ```
 router.get("/signout", signOut);
 ```
+
 4. go to frontend. ui/src/redux/user/userSlice.js
-5. define three reducers for the signOut functionality: 
+5. define three reducers for the signOut functionality:
+
 ```
 signOutUserStart: (state) => {
             state.loading = true;
@@ -902,21 +920,27 @@ signOutUserStart: (state) => {
             state.loading = false;
         },
 ```
+
 6. export these reducers
+
 ```
-export const { 
+export const {
   signOutUserStart,
   signOutUserSuccess,
   signOutUserFailure,
 } = userSlice.actions;
 export default userSlice.reducer;
 ```
+
 7. ui/src/pages/Profile.jsx and go to the <span>Sign Out</span>
 8. add an event listener to this <span>
-``` 
+
+```
 onClick={handleSignOut}
 ```
-9. define the handleSignOut function: 
+
+9. define the handleSignOut function:
+
 ```
   const handleSignOut = async () => {
     try {
@@ -941,7 +965,7 @@ git push
 
 \\
 Add create listing API route
-first we create a model called listing.model.js 
+first we create a model called listing.model.js
 this will be the JSON that we store in our mongodb
 api/models/listing.model.js
 
@@ -1003,9 +1027,10 @@ const listingSchema = new mongoose.Schema({
 
 const Listing = mongoose.model("Listing", listingSchema);
 
-export default Listing; 
+export default Listing;
 ```
-we export default Listing. 
+
+we export default Listing.
 then we go to api/routes/listing.route.js
 here we create the route
 
@@ -1021,8 +1046,10 @@ router.post('/create', verifyToken, createListing);
 export default router;
 
 ```
+
 as you can see, in our router.post(), we are calling a function called createListing. We need to define this createListing function
 The createListing function is defined in api/controllers/listing.controller.js
+
 ```
 import Listing from "../models/listing.model.js";
 
@@ -1035,8 +1062,10 @@ export const createListing = async (req, res, next) => {
     }
 }
 ```
+
 now we need to use this listing route in our application
 we go to api/index.js
+
 ```
 import listingRouter from './routes/listing.route.js';
 
@@ -1045,27 +1074,28 @@ app.use('/api/listing', listingRouter);
 
 now we test this in insomnia
 create a new folder called listing
-create a POST request called create listing with the link: localhost:3000/api/listing/create 
-add the following JSON in the body and send: 
+create a POST request called create listing with the link: localhost:3000/api/listing/create
+add the following JSON in the body and send:
+
 ```
 {
 	"name": "test",
 	"description": "test",
-	"address": "test", 
+	"address": "test",
 	"regularPrice": 500,
 	"discountPrice": 500,
-	"bathrooms": 5, 
-	"bedrooms": 5, 
-	"furnished": true, 
-	"parking": true, 
-	"type": "rent", 
-	"offer": true, 
+	"bathrooms": 5,
+	"bedrooms": 5,
+	"furnished": true,
+	"parking": true,
+	"type": "rent",
+	"offer": true,
 	"imageUrls": ["abcdef", "ghijkl"],
 	"userRef": "hahahahahaha"
 }
 ```
 
-this will succeed. 
+this will succeed.
 git push
 
 \\
@@ -1075,10 +1105,11 @@ Complete create listing page UI
 Complete upload listing images functionality
 
 we import the firebase app
-``` import { app } from "../firebase.js"; ```
+`import { app } from "../firebase.js";`
 
 we need to import getDownloadUrl, getStorage, ref and uploadBytesResumable from firebase/storage
-``` 
+
+```
 import {
   getDownloadURL,
   getStorage,
@@ -1087,20 +1118,23 @@ import {
 } from "firebase/storage";
 ```
 
-no we create two useState snippets: 
-``` 
+no we create two useState snippets:
+
+```
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
   });
 ```
+
 this is to store the files and store imageUrls into formData
 
 got to file input type and add an onChange={(e) => setFiles(e.target.files)} event listener
 to the upload button, we add an event onClick={handleImageSubmit} event listener
 
 now we need to define two functions that is the handleSubmit() and storeImage() functions
-the storeImage function is defined to store the images that we upload of the listing. It is as follows: 
+the storeImage function is defined to store the images that we upload of the listing. It is as follows:
+
 ```
 const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
@@ -1130,6 +1164,7 @@ const storeImage = async (file) => {
 ```
 
 now we define the handleSubmit() function
+
 ```
 const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -1159,15 +1194,17 @@ const handleImageSubmit = (e) => {
     }
   };
 
-```  
+```
 
-add two more useState snippets: 
+add two more useState snippets:
+
 ```
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
 ```
 
 now we modify the uploading button to handle and display the uploading... functionality:
+
 ```
             <button
               type="button"
@@ -1181,6 +1218,7 @@ now we modify the uploading button to handle and display the uploading... functi
 
 then we need to display the uploaded images to the user
 we declare a <p> tag after the uploading functionality
+
 ```
           <p className="text-red-700 text-sm">
             {imageUploadError && imageUploadError}
@@ -1209,7 +1247,8 @@ we declare a <p> tag after the uploading functionality
 
 each image needs to a have a key={} attribute when we are declaring a map() function
 we also need a delete functionality for each image that we upload
-the delete button calls an event listener onClick and we call the handleRemoveImage function. 
+the delete button calls an event listener onClick and we call the handleRemoveImage function.
+
 ```
                 <button
                   type="button"
@@ -1219,9 +1258,11 @@ the delete button calls an event listener onClick and we call the handleRemoveIm
                   Delete
                 </button>
 ```
+
 the stop the handleRemoveImage(index) from automatically executing, we write it as an ambigious function
 
-the handleRemoveImage(index) function is defined as follows: 
+the handleRemoveImage(index) function is defined as follows:
+
 ```
 const handleRemoveImage = (index) => {
     setFormData({
@@ -1244,12 +1285,14 @@ import { useNavigate } from "react-router-dom";
 ```
 
 declare currentUser and naviagate
+
 ```
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
 ```
 
 declare all the default values of all the variables of the form
+
 ```
   const [formData, setFormData] = useState({
     imageUrls: [],
@@ -1267,7 +1310,8 @@ declare all the default values of all the variables of the form
   });
 ```
 
-useStates for loading and errors 
+useStates for loading and errors
+
 ```
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -1313,9 +1357,10 @@ const handleChange = (e) => {
 ```
 
 then add a submit functionality for the entire form with all of its variables
-``` <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4"> ```
+`<form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">`
 
-define the handleSubmit function: 
+define the handleSubmit function:
+
 ```
 const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1363,6 +1408,7 @@ Create get user listings API route
 
 go to api/controllers/user.controller.js
 define the getUserListings function
+
 ```
 export const getUserListings = async (req, res, next) => {
     if (req.user.id === req.params.id) {
@@ -1382,6 +1428,7 @@ export const getUserListings = async (req, res, next) => {
 ```
 
 then go to api/routes/user.route.js and create an endpoint for this function
+
 ```
 import { getUserListings } from "../controllers/user.controller.js";
 router.get('/listings/:id', verifyToken, getUserListings);
@@ -1391,14 +1438,15 @@ test on insomnia
 
 git push
 
-\\ 
+\\
 Complete show user listings functionality
 finish designing the UI for this
 
 \\
 Complete delete user listing functionality
-1. go to api/controllers/listing.controller.js 
-define the function to delete the user listing
+
+1. go to api/controllers/listing.controller.js
+   define the function to delete the user listing
 
 ```
 export const deleteListing = async (req, res, next) => {
@@ -1410,7 +1458,7 @@ export const deleteListing = async (req, res, next) => {
 
     if (req.user.id !== listing.userRef) {
         return next(errorHandler(401, "You can only delete your own listing!"));
-    } 
+    }
 
     try {
         await Listing.findByIdAndDelete(req.params.id);
@@ -1424,15 +1472,16 @@ export const deleteListing = async (req, res, next) => {
 2. go to api/routes/listing.route.js
 
 import the deleteListing function
-``` import {deleteListing} from "../controllers/listing.controller.js"; ```
+`import {deleteListing} from "../controllers/listing.controller.js";`
 
 create the api call and its endpoint
 
-``` router.delete('/delete/:id', verifyToken, deleteListing); ```
+`router.delete('/delete/:id', verifyToken, deleteListing);`
 
 3. go to ui/src/pages/Profile.jsx
 
 go to the <button>Delete</button> and add an onClick event listener to this
+
 ```
 <button
   onClick={() => handleListingDelete(listing._id)}
@@ -1443,6 +1492,7 @@ go to the <button>Delete</button> and add an onClick event listener to this
 ```
 
 4. define the handleListingDelete() function
+
 ```
   const handleListingDelete = async (listingId) => {
     try {
@@ -1466,16 +1516,17 @@ go to the <button>Delete</button> and add an onClick event listener to this
 ```
 
 test on insomnia
-create a delete request with api: http://localhost:3000/api/listing/delete/:id 
+create a delete request with api: http://localhost:3000/api/listing/delete/:id
 test it for a particular user and try to delete each listing
 
 git push
 
 \\
 Create update listing API route
-follow the same process of building the api as we did for delete. 
+follow the same process of building the api as we did for delete.
 
 1. go to api/controllers/listing.controller.js
+
 ```
 export const updateListing = async (req, res, next) => {
     const listing = await Listing.findById(req.params.id);
@@ -1504,14 +1555,15 @@ export const updateListing = async (req, res, next) => {
 ```
 
 2. go to api/routes/listing.route.js
+
 ```
 import updateListing from "../controllers/listing.controller.js";
 router.post('/update/:id', verifyToken, updateListing);
 ```
 
 3. test on insomnia
-under listing create a post request and name it update a listing
-the link ``` localhost:3000/api/listing/update/:id ```
+   under listing create a post request and name it update a listing
+   the link `localhost:3000/api/listing/update/:id`
 
 git push
 
@@ -1519,6 +1571,7 @@ git push
 Complete update listing functionality
 
 1. go to api/controllers/listing.controller.js and define the getListing function here
+
 ```
 export const getListing = async (req, res, next) => {
     try {
@@ -1534,16 +1587,18 @@ export const getListing = async (req, res, next) => {
 }
 ```
 
-2. create the route to get this listing with 
+2. create the route to get this listing with
+
 ```
 import { getListing } from "../controllers/listing.controller.js";
 router.get('/get/:id', getListing);
 ```
 
 3. go to ui/src/pages and create a new page called UpdateListing.jsx
-copy all the contents of the CreateListing.jsx page into the UpdateListing.jsx and change create to update everywhere
+   copy all the contents of the CreateListing.jsx page into the UpdateListing.jsx and change create to update everywhere
 
-4. go to App.jsx 
+4. go to App.jsx
+
 ```
 import UpdateListing from "./pages/UpdateListing";
         <Route element={<PrivateRoute />}>
@@ -1557,6 +1612,7 @@ import UpdateListing from "./pages/UpdateListing";
 ```
 
 5. go to the profile page and add a <Link></Link> tag which is imported from react-router-dom
+
 ```
                 <Link to={`/update-listing/${listing._id}`}>
                   <button className="text-green-700 uppercase">Edit</button>
@@ -1572,13 +1628,13 @@ Add image slider to the listing page
 
 1. go to ui/src/pages and create Listing.jsx
 
-2. go to ui root folder and ``` npm install swiper ```
+2. go to ui root folder and `npm install swiper`
 
-3. go to App.jsx and import the page 
-``` import Listing from "./pages/Listing"; ``` 
+3. go to App.jsx and import the page
+   `import Listing from "./pages/Listing";`
 
 4. This is a public page so just declare this page as a Route within the Routes
-``` <Route path="/listing/:listingId" element={<Listing />} /> ```
+   `<Route path="/listing/:listingId" element={<Listing />} />`
 
 This basically adds the image swiping functionality for our listing pages
 git push
@@ -1591,6 +1647,7 @@ design the listing page completely
 Add contact landlord functionality completely
 
 1. go to api/controllers/user.controller.js and write the getUser function
+
 ```
 export const getUser = async (req, res, next) => {
     try {
@@ -1608,6 +1665,7 @@ export const getUser = async (req, res, next) => {
 ```
 
 2. go to api/routes/user.route.js
+
 ```
 import { deleteUser, test, updateUser, getUserListings, getUser } from "../controllers/user.controller.js";
 router.get('/:id', verifyToken, getUser);
@@ -1616,15 +1674,18 @@ router.get('/:id', verifyToken, getUser);
 3. Design the entire Contact page and update the changes in Listing.jsx as well so that it can successfully write an email to the user
 
 \\
+
 ### Create search API route
 
 1. add a get listing route within the listing.route.js
+
 ```
 import { getListings } from "../controllers/listing.controller.js";
 router.get("/get", getListings);
 ```
 
 2. define the getListings function within the api/controllers/listing.controller.js
+
 ```
 export const getListings = async (req, res, next) => {
     try {
@@ -1673,46 +1734,146 @@ export const getListings = async (req, res, next) => {
 ```
 
 1. Function Definition
-This line defines an asynchronous function getListings, which is exported for use in other parts of your application. The function takes three arguments:
-req: The request object, which contains information about the HTTP request (e.g., query parameters, headers).
-res: The response object, used to send back the desired HTTP response.
-next: A function used to pass control to the next middleware in case of an error.
+   This line defines an asynchronous function getListings, which is exported for use in other parts of your application. The function takes three arguments:
+   req: The request object, which contains information about the HTTP request (e.g., query parameters, headers).
+   res: The response object, used to send back the desired HTTP response.
+   next: A function used to pass control to the next middleware in case of an error.
 2. Try-Catch Block
-The code inside this try block is executed. If an error occurs, it is caught by the catch block.
+   The code inside this try block is executed. If an error occurs, it is caught by the catch block.
 3. Extracting Query Parameters with Defaults
-These lines extract limit and startIndex from the query parameters in the request (req.query).
-limit determines how many results to return, with a default value of 9 if not provided.
-startIndex determines the starting point for pagination, with a default value of 0 if not provided.
-parseInt is used to convert the query parameters from strings to integers.
+   These lines extract limit and startIndex from the query parameters in the request (req.query).
+   limit determines how many results to return, with a default value of 9 if not provided.
+   startIndex determines the starting point for pagination, with a default value of 0 if not provided.
+   parseInt is used to convert the query parameters from strings to integers.
 4. Handling Boolean Filters
-This section deals with the offer query parameter:
-If offer is undefined or "false", the offer variable is set to an object { $in: [false, true] }. This means the query will include listings where offer can be either false or true.
-This logic is used to ensure that if no specific offer filter is provided, the query includes all listings.
-Similar logic applies to the furnished parameter, where the listings can be either furnished or unfurnished if the parameter is not specified.
-The same logic is used for the parking parameter, allowing listings with or without parking.
+   This section deals with the offer query parameter:
+   If offer is undefined or "false", the offer variable is set to an object { $in: [false, true] }. This means the query will include listings where offer can be either false or true.
+   This logic is used to ensure that if no specific offer filter is provided, the query includes all listings.
+   Similar logic applies to the furnished parameter, where the listings can be either furnished or unfurnished if the parameter is not specified.
+   The same logic is used for the parking parameter, allowing listings with or without parking.
 5. Handling Type Filter
-The type parameter filters listings by their type (e.g., "sale" or "rent").
-If type is undefined or "all", the type variable is set to include both "sale" and "rent" listings.
+   The type parameter filters listings by their type (e.g., "sale" or "rent").
+   If type is undefined or "all", the type variable is set to include both "sale" and "rent" listings.
 6. Search Term, Sort, and Order Parameters
-searchTerm: A string to filter listings based on their name, defaulting to an empty string if not provided.
-sort: The field by which the listings should be sorted, defaulting to "createdAt" (assuming the listings have a creation date).
-order: The sort order ("asc" for ascending or "desc" for descending), defaulting to "desc" (most recent first).
+   searchTerm: A string to filter listings based on their name, defaulting to an empty string if not provided.
+   sort: The field by which the listings should be sorted, defaulting to "createdAt" (assuming the listings have a creation date).
+   order: The sort order ("asc" for ascending or "desc" for descending), defaulting to "desc" (most recent first).
 7. Database Query Execution
-Listing.find: Executes a MongoDB query on the Listing collection, using the following filters:
-name: { $regex: searchTerm, $options: "i" }: Filters listings by name using a case-insensitive regular expression that matches the searchTerm.
-offer, furnished, parking, type: These are the filters defined earlier.
-.sort({ [sort]: order }): Sorts the results based on the sort field and order direction.
-.limit(limit): Limits the number of returned documents to the specified limit.
-.skip(startIndex): Skips a number of documents, allowing for pagination.
+   Listing.find: Executes a MongoDB query on the Listing collection, using the following filters:
+   name: { $regex: searchTerm, $options: "i" }: Filters listings by name using a case-insensitive regular expression that matches the searchTerm.
+   offer, furnished, parking, type: These are the filters defined earlier.
+   .sort({ [sort]: order }): Sorts the results based on the sort field and order direction.
+   .limit(limit): Limits the number of returned documents to the specified limit.
+   .skip(startIndex): Skips a number of documents, allowing for pagination.
 8. Returning the Result
-If the query is successful, the results (listings) are returned as a JSON response with a status code of 200 (OK).
+   If the query is successful, the results (listings) are returned as a JSON response with a status code of 200 (OK).
 9. Error Handling
-If an error occurs during the query execution, it is passed to the next function, which typically forwards the error to an error-handling middleware.
+   If an error occurs during the query execution, it is passed to the next function, which typically forwards the error to an error-handling middleware.
 
 \\
 Complete header search form functionality
 
+1. add the import statements
 
+```
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+```
 
+2. add value and onChange event listeners to the search input type
+
+```
+<input
+  type="text"
+  placeholder="Search..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>
+```
+
+3. place the search functionality icon within the button tags
+
+```
+<button>
+  <FaSearch className="text-slate-600" />
+</button>
+```
+
+4. add an onSubmit event listener to the form
+
+```
+<form onSubmit={handleSubmit}></form>
+```
+
+5. define the handleSubmit function
+```
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchTerm", searchTerm);
+
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [location.search]);
+```
+
+const [searchTerm, setSearchTerm] = useState("");
+
+Initializes searchTerm state with an empty string and provides a function setSearchTerm to update it.
+const navigate = useNavigate();
+
+Gets the navigate function from React Router for programmatic navigation.
+const handleSubmit = (e) => {
+
+Defines a function handleSubmit to handle form submissions.
+e.preventDefault();
+
+Prevents the default form submission behavior.
+const urlParams = new URLSearchParams(window.location.search);
+
+Creates a URLSearchParams object to manage query parameters from the current URL.
+urlParams.set("searchTerm", searchTerm);
+
+Updates the searchTerm query parameter with the current value of searchTerm state.
+const searchQuery = urlParams.toString();
+
+Converts the updated query parameters to a string.
+navigate(/search?${searchQuery});
+
+Navigates to the /search page with the updated query parameters.
+useEffect(() => {
+
+Sets up a side effect that runs when location.search changes.
+const urlParams = new URLSearchParams(location.search);
+
+Retrieves the query parameters from the current URL.
+const searchTermFromUrl = urlParams.get("searchTerm");
+
+Extracts the searchTerm from the query parameters.
+if (searchTermFromUrl) {
+
+Checks if searchTerm exists in the URL.
+setSearchTerm(searchTermFromUrl);
+
+Updates the searchTerm state with the value from the URL.
+}, [location.search]);
+
+Re-runs the effect whenever location.search changes.
+
+\\
+Create search page UI
 
 
