@@ -1618,6 +1618,100 @@ router.get('/:id', verifyToken, getUser);
 \\
 ### Create search API route
 
+1. add a get listing route within the listing.route.js
+```
+import { getListings } from "../controllers/listing.controller.js";
+router.get("/get", getListings);
+```
+
+2. define the getListings function within the api/controllers/listing.controller.js
+```
+export const getListings = async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit) || 9;
+        const startIndex = parseInt(req.query.startIndex) || 0;
+
+        let offer = req.query.offer;
+        if (offer === undefined || offer === "false") {
+            offer = { $in: [false, true] };
+        }
+
+        let furnished = req.query.furnished;
+        if (furnished === undefined || furnished === "false") {
+            furnished = { $in: [false, true] };
+        }
+
+        let parking = req.query.parking;
+        if (parking === undefined || parking === "false") {
+            parking = { $in: [false, true] };
+        }
+
+        let type = req.query.type;
+        if (type === undefined || type === "all") {
+            type = { $in: ["sale", "rent"] };
+        }
+
+        const searchTerm = req.query.searchTerm || "";
+        const sort = req.query.sort || "createdAt";
+        const order = req.query.order || "desc";
+
+        const listings = await Listing.find({
+            name: { $regex: searchTerm, $options: "i" },
+            offer,
+            furnished,
+            parking,
+            type,
+        }).sort({
+            [sort]: order
+        }).limit(limit).skip(startIndex);
+
+        return res.status(200).json(listings);
+    } catch (error) {
+        next(error);
+    }
+}
+```
+
+1. Function Definition
+This line defines an asynchronous function getListings, which is exported for use in other parts of your application. The function takes three arguments:
+req: The request object, which contains information about the HTTP request (e.g., query parameters, headers).
+res: The response object, used to send back the desired HTTP response.
+next: A function used to pass control to the next middleware in case of an error.
+2. Try-Catch Block
+The code inside this try block is executed. If an error occurs, it is caught by the catch block.
+3. Extracting Query Parameters with Defaults
+These lines extract limit and startIndex from the query parameters in the request (req.query).
+limit determines how many results to return, with a default value of 9 if not provided.
+startIndex determines the starting point for pagination, with a default value of 0 if not provided.
+parseInt is used to convert the query parameters from strings to integers.
+4. Handling Boolean Filters
+This section deals with the offer query parameter:
+If offer is undefined or "false", the offer variable is set to an object { $in: [false, true] }. This means the query will include listings where offer can be either false or true.
+This logic is used to ensure that if no specific offer filter is provided, the query includes all listings.
+Similar logic applies to the furnished parameter, where the listings can be either furnished or unfurnished if the parameter is not specified.
+The same logic is used for the parking parameter, allowing listings with or without parking.
+5. Handling Type Filter
+The type parameter filters listings by their type (e.g., "sale" or "rent").
+If type is undefined or "all", the type variable is set to include both "sale" and "rent" listings.
+6. Search Term, Sort, and Order Parameters
+searchTerm: A string to filter listings based on their name, defaulting to an empty string if not provided.
+sort: The field by which the listings should be sorted, defaulting to "createdAt" (assuming the listings have a creation date).
+order: The sort order ("asc" for ascending or "desc" for descending), defaulting to "desc" (most recent first).
+7. Database Query Execution
+Listing.find: Executes a MongoDB query on the Listing collection, using the following filters:
+name: { $regex: searchTerm, $options: "i" }: Filters listings by name using a case-insensitive regular expression that matches the searchTerm.
+offer, furnished, parking, type: These are the filters defined earlier.
+.sort({ [sort]: order }): Sorts the results based on the sort field and order direction.
+.limit(limit): Limits the number of returned documents to the specified limit.
+.skip(startIndex): Skips a number of documents, allowing for pagination.
+8. Returning the Result
+If the query is successful, the results (listings) are returned as a JSON response with a status code of 200 (OK).
+9. Error Handling
+If an error occurs during the query execution, it is passed to the next function, which typically forwards the error to an error-handling middleware.
+
+\\
+Complete header search form functionality
+
 
 
 
