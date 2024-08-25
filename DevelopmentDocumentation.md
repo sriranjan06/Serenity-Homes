@@ -1880,6 +1880,7 @@ designed the UI for Search.jsx
 \\
 Add onChange and onSubmit functionality to the search page
 
-
+\\
+Create the listings item component and show listings
 
 
