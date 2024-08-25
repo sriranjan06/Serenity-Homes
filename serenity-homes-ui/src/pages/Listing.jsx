@@ -21,7 +21,7 @@ const Listing = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [contact, setContact] = useState(false); 
+  const [contact, setContact] = useState(false);
 
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
@@ -104,7 +104,7 @@ const Listing = () => {
               </p>
               {listing.offer && (
                 <p className="bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
-                  ${+listing.regularPrice - +listing.discountPrice} Off
+                  ${+listing.regularPrice - +listing.discountPrice} discount
                 </p>
               )}
             </div>
@@ -139,7 +139,7 @@ const Listing = () => {
                 onClick={() => setContact(true)}
                 className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3"
               >
-                Contact landlord  
+                Contact landlord
               </button>
             )}
             {contact && <Contact listing={listing} />}

@@ -1882,5 +1882,11 @@ Add onChange and onSubmit functionality to the search page
 
 \\
 Create the listings item component and show listings
+``` npm install -D @tailwindcss/line-clamp ```
+the above is used to clamp a two line truncated statement
+
+\\
+Add show more listings functionality
+
 
 
