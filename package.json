@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon serenity-homes-api/index.js",
-    "start": "node serenity-homes-api/index.js"
+    "start": "node serenity-homes-api/index.js",
+    "build": "npm install && npm install --prefix serenity-homes-ui && npm run build --prefix serenity-homes-ui"
   },
   "keywords": [],
   "author": "",

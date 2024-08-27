@@ -1934,6 +1934,25 @@ Designed and completed the about page
 \\
 Deploy to render
 
+1. go to root folder package.json and add a script
+``` "build": "npm install && npm install --prefix serenity-homes-ui && npm run build --prefix serenity-homes-ui" ```
+
+2. go to api/index.js
+in the index.js
+
+```
+import path from "path";
+
+const __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "/serenity-homes-ui/dist/")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "serenity-homes-ui", "dist", "index.html"));
+});
+```
+
+git push
 
 
 
