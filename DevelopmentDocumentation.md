@@ -1924,6 +1924,13 @@ git push
 \\
 Complete home page
 
+designed and added all the necessary elements to the Home.jsx page including swiper
+
+\\
+Complete About page
+
+
+
 
 
 
