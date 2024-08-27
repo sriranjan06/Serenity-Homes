@@ -1929,7 +1929,10 @@ designed and added all the necessary elements to the Home.jsx page including swi
 \\
 Complete About page
 
+Designed and completed the about page
 
+\\
+Deploy to render
 
 
 
