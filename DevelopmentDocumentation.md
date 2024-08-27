@@ -1888,5 +1888,42 @@ the above is used to clamp a two line truncated statement
 \\
 Add show more listings functionality
 
+1. add the show more listings button in the same div as the loading display
+```
+          {/* show more listings button */}
+          {showMore && (
+            <button
+              onClick={onShowMoreClick}
+              className="text-green-700 hover:underline p-7 text-center w-full"
+            >
+              Show more
+            </button>
+          )}
+```
+
+2. define the onShowMoreClick function
+```
+  const onShowMoreClick = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+
+    if (data.length < 9) {
+      setShowMore(false);
+    }
+    setListings([...listings, ...data]);
+  };
+```
+
+git push
+
+\\
+Complete home page
+
+
 
 
