@@ -1,316 +1,1034 @@
-npm create vite@latest serenity-homes-ui
-React, Javascript + SWC
-install tailwindcss vite
-follow tailwindcss vite documentation to install and set up the project
-delete app.css file as it is not necessary
-delete vite.svg under the public folder
-delete react.svg under the assets folder
-clear all contents under app.jsx and use the ES7 extension and do rafce
-install autorename extension
-install consoleninja extension
-install prettier extension
-install tailwind css intellisense
-now, we create the pages and routes
-inside src folder, create another folder called pages
-inside pages, create About.jsx, Home.jsx, Profile,jsx, SignIn.jsx, SignUp.jsx
-then install react-router-dom npm install react-router-dom
-within the App.jsx file, import BrowserRouter, Routes and Route from react-router-dom
-within App return, wrap everything in the <BrowserRouter></BrowserRouter> tag, then <Routes></Routes> tag
-inside <Routes></Routes> list out each page as a <Route path="/" element={<Home />} />
-inside the src folder, we create another folder called components
-create first component Header.jsx, rafce and call the component within the App.jsx file
-place the <Header /> within the <BrowserRouter> tags but above the <Routes> tag
-begin designing the Header component. classify as left, center and right
-structure -> <Header><div> {/_ left _/} {/_ center _/} {/_ right _/} </div></Header>
-left will have the name <h1>Serenity Homes</h1> styled accordingly
-center will have a <form> within which we have an <input type="text">
-install react icons with npm install react-icons
-use FaSearch icon
-now, for the right part of the header/navbar, we create an unordered list <ul> and then list items <li> home, about and sign-in
-import Link from react-router-dom
-wrap each of the <li> within a <Link to="/"> tag to ensure that routing takes places in the SPA without loading
-\\
-let us create our api folder
-go to the root directory of the project and type npm init -y
-create a folder called serenity-homes-api
-create an index.js file within the api folder
-install express within the root directory of the project with the command npm install express
-write this within the index.js in api folder
+# Project Setup
+
+### 1. Create Vite project <br>
+>  npm create vite@latest serenity-homes-ui
+
+- Choose `React` with `JavaScript + SWC` as the framework.
+
+### 2. Install Tailwind CSS: <br>
+- Follow the [Tailwind CSS Vite documentation](https://tailwindcss.com/docs/guides/vite) to install and set up Tailwind CSS.
+- Delete unnecessary files:
+  - `app.css`
+  - `vite.svg` under the `public` folder.
+  - `react.svg` under the `assets` folder.
+- Clear all contents in `App.jsx` and use the ES7 extension to generate a React functional component (rafce).
+
+### 3. Install Extensions:
+- Install the following VSCode extensions:
+  - `Auto Rename Tag`
+  - `Console Ninja`
+  - `Prettier - Code Formatter`
+  - `Tailwind CSS IntelliSense`
+
+# Creating Pages and Routes
+
+### 1. Create Pages:
+- Inside the `src` folder, create a new folder called `pages`.
+- Create the following files in the `pages` folder:
+  - `About.jsx`
+  - `Home.jsx`
+  - `Profile.jsx`
+  - `SignIn.jsx`
+  - `SignUp.jsx`
+
+### 2. Set Up Routing:
+- Install `react-router-dom`: <br>
+> npm install react-router-dom
+
+- In `App.jsx`, import `BrowserRouter`, `Routes`, and `Route` from `react-router-dom`.
+- Wrap the returned JSX with `<BrowserRouter>`.
+- Inside `<BrowserRouter>`, add a `<Routes>` tag.
+- Add individual `<Route>` components for each page:
+> <Route path="/" element={`<Home />`} /> <br>
+> <Route path="/about" element={`<About />`} /> <br>
+> <Route path="/profile" element={`<Profile />`} /> <br>
+> <Route path="/sign-in" element={`<SignIn />`} /> <br>
+> <Route path="/sign-up" element={`<SignUp />`} /> <br>
+
+# Creating Components
+
+### 1. Create Header Component: 
+- Inside the src folder, create a components folder.
+Create a Header.jsx file.
+- Use the ES7 extension to create a functional component (rafce).
+- Import and include `<Header />` in App.jsx inside the `<BrowserRouter>` but above `<Routes>`.
+
+### 2. Design Header Structure: 
+- Structure the header with left, center, and right sections:
+
+``` 
+ <Header>
+  <div>
+    {/* Left: */}
+    <div>  
+     <h1>Serenity Homes</h1> 
+    </div>
+
+    {/* Center: */}
+    <div>  
+      <form> 
+        <input type="text" /> 
+      </form> 
+    </div>
+    
+    {/* Right: */}
+    <div>  
+      <ul>    
+        <li>Home</li>
+        <li>About</li>
+        <li>Sign In</li> 
+      </ul> 
+    </div>
+  </div>
+ </Header>
+ ```
+
+- Style accordingly with Tailwind CSS.
+- Use `react-icons` for the search icon:
+> npm install react-icons
+- Import `FaSearch` from `react-icons/fa` and use it in the search form.
+- Import `Link` from `react-router-dom`
+- Wrap each of the `<li>` within a `<Link to="/">` tag to ensure that routing takes places in the SPA without loading.
+
+# Setting Up the Backend
+
+### 1. Create API Folder: 
+- Go to the root directory and initialize a Node.js project:
+> npm init -y
+- Create a folder named serenity-homes-api.
+- Create an index.js file inside serenity-homes-api.
+- Install Express:
+> npm install express
+- Write the following code in `index.js` to start a server:
+```
 import express from 'express';
 const app = express();
 
 app.listen(3000, () => {
-console.log("Server is running on port 3000");
-})
-got to root directory's package.json file and add type:"modules" after main:
-now, to run the file, type node serenity-homes-api/index.js in root directory terminal
-\\
-to ensure that the api/server side auto reloads, we need a package called nodemon
-npm install nodemon
-got to root package.json and delete the "test" under "scripts"
-write two new commands under "scripts"
-"dev": "nodemon serenity-homes-api/index.js",
-"start": "node serenity-homes-api/index.js"
-now, npm run dev command will run nodemon and will start the server
-nodemon is used to restart the server automatically each time any changes are made to it
-mv .git ../ command is used to move the git tracking file from a child directory to a parent directory
-move the .gitignore file from the child directory into the root directory of the project so that all the node modules aren't pushed into the github repository
-npm install mongoose in root directory
-go to chrome and go to mongodb.com and login
-create a new cluster -> deployment -> database -> set up connection security -> set up connection method
-in the set up connection method Add your connection string into your application code
-now, come back to vscode and in the root directory create an environment variable file called .env
-within .env create a variable called MONGO = "" copy paste your mongodb connection string into this variable
-now, go to index.js under api and import mongoose from 'mongoose';
-after importing, below the import statement write mongoose.connect(process.env.MONGO);
-to be able to use the .env file, we need to install a package called dotenv
-npm install dotenv and within the api/index.js file, import dotenv from 'dotenv';
-configure the dotenv using dotenv.config();
-\\
-now, to ensure that the connection is estbalished to mongodb, modify the following:
-mongoose.connect(process.env.MONGO).then(() => {
-console.log("Connected to MongoDB!");
-}).catch((err) => {
-console.log(err);
-})
-\\
-now you can see that the backend server is running without any issues
-now go to your .gitignore file and add .env so that the .env file isn't pushed to github. the .env file contains our password
-when you go to commit the file now, you can see that the .env file is not tracked for commit
-push code to github
-\\
-within api create another folder called models
-inside models, create a file called user.model.js
-inside user.model.js -> import mongoose
-set the rules of the Schema or model within this file
-const User = mongoose.model('User', userSchema);
-and then export default User
-\\
-we now create an api route
-api/index.js
-here, we write app.use('/api/user', userRouter);
-under api, create a new folder called routes
-under routes, create a new file called user.route.js
-inside user.route.js
-import express from "express";
+  console.log("Server is running on port 3000");
+});
+```
+- Modify the `package.json` file in the root directory:
+> "type": "module"
+- Run the server:
+> node serenity-homes-api/index.js
 
+### 2. Install Nodemon:
+- Install `nodemon` for automatic server reloading:
+> npm install nodemon
+- Update scripts in package.json:
+```
+"scripts": {
+  "dev": "nodemon serenity-homes-api/index.js",
+  "start": "node serenity-homes-api/index.js"
+}
+```
+- Run the server with:
+> npm run dev
+
+### 3. Set Up MongoDB: 
+- Install Mongoose:
+> npm install mongoose
+
+- Set up a MongoDB cluster on [mongodb.com](mongodb.com) and obtain the connection string.
+- Create a `.env` file in the root directory to store the MongoDB connection string:
+> MONGO="<your_connection_string>"
+
+- In `index.js`, connect to MongoDB:
+```
+import mongoose from 'mongoose';
+mongoose.connect(process.env.MONGO)
+  .then(() => console.log("Connected to MongoDB!"))
+  .catch((err) => console.log(err));
+```
+
+- Install `dotenv` to use environment variables:
+> npm install dotenv
+
+- Import and configure `dotenv` in `index.js`:
+```
+import dotenv from 'dotenv';
+dotenv.config();
+```
+
+### 4. Set Up User Model and Routes:
+- Create a `models` folder in the `api` directory and add `user.model.js`:
+```
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+});
+
+const User = mongoose.model('User', userSchema);
+export default User;
+```
+
+- Create a `routes` folder in the `api` directory and add `user.route.js`:
+```
+import express from "express";
 const router = express.Router();
 
 router.get('/test', (req, res) => {
-res.json({
-message: 'Hello World',
-})
-})
+  res.json({ message: 'Hello World' });
+});
 
 export default router;
-now import userRouter from './routes/user.route.js' within api/index.js
-in user.route.js, instead of declring the function within the router.get('/test', test) api, we need to call it from elsewhere
-under serenity-homes-api, we create a new folder called controllers
-api/controllers/user.controller.js
-we write the test function declaration here
-export const test = (req, res) => {
-res.json({
-message: 'How are you world?',
-})
-}
-\\
-now we create an api for the sign up page
-create auth.route.js inside routes and write
-import express from 'express';
-const router = express.Router();
-router.post("/signup")
-create auth.controller.js under controller
-export const signup = (req, res) => {
-console.log(req.body);
-}
-create auth.route.js
+```
+
+- Import the router into `index.js` and set up the route:
+```
+import userRouter from './routes/user.route.js';
+app.use('/api/user', userRouter); 
+```
+
+### 5. Move Git Files to Appropriate Directories: 
+- Move `.git` tracking file from a child directory to a parent directory
+> mv .git ../
+- Move the `.gitignore` file from the child directory into the root directory of the project so that all the node modules aren't pushed into the github repository
+- Add the `.env` within the `.gitignore` file so that the `.env` file isn't pushed to github. The `.env` file contains our access keys.
+
+# User Authentication
+
+### 1. Create Sign-Up API:
+- In `routes`, create `auth.route.js`:
+```
 import express from 'express';
 import { signup } from '../controllers/auth.controller.js';
-
 const router = express.Router();
 
-router.post("/signup", signup)
-
+router.post("/signup", signup);
 export default router;
-in index. js import the necessary file
-import authRouter from './routes/auth.route.js';
-and call the api using: app.use('/api/auth', authRouter);
-we now use insomnia for api route test
-by default, we cannot send a JSON. we need to allow the JSON to be sent.
-we can do this by going to index.js and adding app.use(express.json());
-we can now see the json sent in the server terminal
-we need to store this information, therefore we destructure the console.log in auth.controller.js and receive each variable so that we can store them in the database
-the following is auth.controller.js now:
-import User from '../models/user.model.js'
+```
+
+- In `controllers`, create `auth.controller.js`:
+```
+import User from '../models/user.model.js';
 
 export const signup = async (req, res) => {
-const { username, email, password } = req.body;
-const newUser = new User({ username, email, password })
-await newUser.save()
-res.status(201).json("User created successfully")
-}
-make sure all the data is correct in api/routes/auth.route.js
-check that the api is passing correctly through insomnia (similar tool to postman)
-\\
-now, we go to mongodb and see that the data is stored inside the database. however, the password is viewable as plain text.
-we need to encrypt it
-go to root folder of project and install npm install bcryptjs
-import brcyptjs from 'bcryptjs'; into auth.controller.js
-inside the signup function -> const hashedPassword = bcryptjs.hashSync(password, 10);
-change password from password to passowrd: hashedPassword
-\\
-to ensure that the user does not enter duplicate username and email, we need to write our auth.controller.js code inside a try{}catch{} block
-catch the error and res.status(500).json(error.message);
-\\
-we create the middelware for handling errors
-we go to api/index.js and write app.use((err, req, res, next) => {})
-the four parameters are err -> error that has occured, req -> the type of request, res -> the body or the resulting message, next -> goes to the next error in the middleware
-the function is defined as:
-app.use((err, req, res, next) => {
-const statusCode = err.statusCode || 500;
-const message = err.message || 'Internal Server Error';
-return res.status(statusCode).json({
-success: false,
-statusCode,
-message,
-});
-});
-now, within the auth.controller.js file, we pass next as a parameter into the signup function.
-we call this next within the catch (error) {
-next(error);
-}
-now when we pass a duplicate value, the we test in insomina and see that the server throws a more comprhensive error
-\\
-we can also write custom/user defined errors. this include errors such as password too long etc.
-under api, we create a new folder called utils.
-api/utils/error.js
-within error.js, we define:
-export const errorHandler = (statusCode, message) => {
-const error = new Error();
-error.statusCode = statusCode;
-error.message = message;
-return error
-}
-now, we can call the errorHandler function wherever we wish to display our custom error. Don't forget to import the error.
-git push
-\\
-we now move on to the creation of UI of sign up page
-designed the ui for sign-up page
-import { Link } from "react-router-dom";
-\\
-adding funcionality to the sign-up page
-we add the onChange={handleChange} event listener to all three input fields
-we need to create a new function called handleChange since it is a user defined function
-along with that, we use a useState hook to store form data. The variable is called formData
-This holds the state of the previous input element within the form while the current element is being updated
-this is done with the help of the spread operator ...formData
-now we need to submit this information. to do this, we need to add an onSubmit={handleSubmit} event listener to the form tag
-define the handleSubmit function and e.preventDefault() to prevent refreshing the page
-we want to send the data, therefore we write it as: const res = await fetch("/api/auth/signup", formData);
-here res means response
-we got the ui and vite.config.js file
-we add the following code snippet under the defineConfig function:
-server: {
-proxy: {
-'/api': {
-target: "http://localhost:3000",
-secure: false,
-},
-},
-},
-this is to show that wherever we find a url which has "/api" in it, we prefix "http://localhost:3000" to this so that it is hitting the correct endpoint always. Here the 3000 port is the backend port where we want to pass the data that we are collecting in the front end.
-now, we cannot just send formData the object as it is as it is not secure and good practice to do so.
-we need to STRINGIFY it.
-therefore, the handleSubmit function is written as:
-const handleSubmit = async (e) => {
-e.preventDefault();
-const res = await fetch("/api/auth/signup", {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-},
-body: JSON.stringify(formData),
-});
-const data = await res.json();
+  const { username, email, password } = req.body;
+  const newUser = new User({ username, email, password });
+  await newUser.save();
+  res.status(201).json("User created successfully");
 };
-perfect! cross verify on mongodb -> serenity homes project -> databases -> browse configuration and we should be able to see the entered data in the database
-\\
-now we need to handle the loading of the page and handle the errors in the page
-we use two useStates that are setLoading and setError
-const [error, setError] = useState(null);
-const [loading, setLoading] = useState(false);
-within the handleSubmit function, we set the setLoading(true);
-if(data.success === false){
-setLoading(false);
+```
+
+- Import the route into `index.js`:
+```
+import authRouter from './routes/auth.route.js';
+app.use('/api/auth', authRouter);
+```
+
+- Test the API using Insomnia.
+
+- Additional Notes: <br>
+  1. Adding funcionality to the sign-up page, we add the onChange={handleChange} event listener to all three input fields. 
+  2. We need to create a new function called handleChange since it is a user defined function. 
+  3. We use a useState hook to store form data. The variable is called formData. This holds the state of the previous input element within the form while the current element is being updated. 
+  4. The spread operator ...formData is used. We need to submit this information. We do this by adding an onSubmit={handleSubmit} event listener to the form tag. 
+  5. Define the handleSubmit function and e.preventDefault() to prevent refreshing the page. 
+  6. We send the data in the followig manner: 
+  > const res = await fetch("/api/auth/signup", formData);
+    - res implies response
+  7. Go to the vite.config.js file and add the following code snippet under the defineConfig function:
+  ```
+  server: {
+    proxy: {
+      '/api': {
+        target: "http://localhost:3000",
+        secure: false,
+      },
+    },
+  },
+  ```
+  8. Wherever we find a url which has `"/api"` in it, we prefix `"http://localhost:3000"` to this so that it is hitting the correct endpoint always. The 3000 port is the backend port where we want to pass the data that we are collecting in the front end.
+  9. We cannot just send formData the object as it is as it is not secure and isn't good practice to do so. Therefore we `STRINGIFY` it.
+  10. The `handleSubmit` function is defined in the following the manner: 
+  ```
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+  };
+  ```
+
+- Perfect! Cross verify on mongodb -> serenity homes project -> databases -> browse configuration and we should be able to see the entered data in the database.
+
+  11. To handle the loading and errors in the page, we use two useStates that are setLoading and setError: 
+  ```
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  setLoading(true);
+  if(data.success === false){
+    setLoading(false);
+  }
+  ```
+
+### 2. Encrypt Passwords:
+- Install `bcryptjs` for password hashing:
+> npm install bcryptjs
+- Modify the `signup` function in `auth.controller.js`:
+```
+import bcryptjs from 'bcryptjs';
+
+export const signup = async (req, res) => {
+  const { username, email, password } = req.body;
+  const hashedPassword = bcryptjs.hashSync(password, 10);
+  const newUser = new User({ username, email, password: hashedPassword });
+  await newUser.save();
+  res.status(201).json("User created successfully");
+};
+```
+
+### 3. Handle Errors: 
+- Modify the `signup` function to use try-catch for error handling:
+```
+export const signup = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+    res.status(201).json("User created successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Create a custom error handler in `utils/error.js`:
+```
+export const errorHandler = (statusCode, message) => {
+  const error = new Error();
+  error.statusCode = statusCode;
+  error.message = message;
+  return error;
+};
+```
+
+- Modify the catch block to use the custom error handler:
+> next(errorHandler(500, error.message));
+
+### 4. Global Error Handling:
+- In `index.js`, add a global error handler:
+```
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
+```
+
+### 5. Create Sign-In API:
+- In `auth.controller.js`, create the `signin` function:
+```
+export const signin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const validUser = await User.findOne({ email });
+
+    if (!validUser) return next(errorHandler(404, "User not found"));
+
+    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    if (!validPassword) return next(errorHandler(401, "Invalid credentials"));
+
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const { password: pass, ...rest } = validUser._doc;
+    res.cookie("access_token", token, { httpOnly: true }).status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a new route in `auth.route.js`:
+> router.post("/signin", signin);
+
+- Additional Notes: Create Sign In API route <br>
+  - Go to `api/controllers/auth.controller.js`
+  - Create a new function called `signin` with the same parameters request, response and next.
+  - Email and password is requested from body
+  - Add a try{}catch(){} block
+  - Validate email in mongoose/mongodb by using the User (which is the model that we have created) and `findOne` cluster `findOne({ email: email});`
+  - If email was not found, call our custom error called errorHandler and pass 404 as the argument
+  - Else, if email was found, we need to check the password
+while checking the password, we need to compare the password currently input by the user and the existing password that has been encrypted and stored in the db: 
+  ```
+  const validPassword = bcryptjs.compareSync(password, validUser.password);
+  ```
+
+
+  - If we need to ensure that the username and password is correct, we need to authenticate it. We use cookies to authenticate the username and password inside the browser.
+  - Create a hash token that includes the id of the user and save this token inside the browser cookies.
+  - The best package to hash the data is json web tokens package.
+  - In the root directory: 
+  > npm install jsonwebtoken
+
+  - import at the top of the auth.controller.js file: 
+  > import jwt from 'jsonwebtoken';
+
+  - Within the try block after checking for validUsername and validPassword, we write: 
+  ``` 
+  const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+  ```
+  
+  - _id is a primary key generated by mongodb.
+  - process.env.JWT_SECRET is the key. 
+  - the .env is a hidden file and it contains the JWT secret and must not be publicly hosted. the JWT_SECRET can be anything of your choice.
+
+  - We take the response from the user and store it in a cookie and we call this cookie, "access_token".
+  - `httpOnly: true` for secure sites only to store the cookie
+  json(validUser) is the part of the user information (username) that we are collecting and storing with the cookie. <br>
+
+  - To check the api, we go to insomnia and create a folder called sign in. The api call is post with url: 
+  > http://localhost:3000/api/auth/signin
+
+  - Only email and password is required in the body.
+  - We call the signin function written and exported in `auth.controller.js` into `auth.route.js` in the following way:
+  > router.post("/signin", signin);
+  
+  - Ensure that `signin` is also imported at the top of `auth.route.js`. <br>
+
+  - Perfect, now we test it, we get 200 OK which is the ok response we created and the cookie is created inside with the access_token as the variable which is a hashed value. Because it is not best practice to display the hashed password after authentication even on the console, we need to ensure that it is removed. We add the following line:
+  
+  > const { password: pass, ...rest } = validUser._doc;
+  - Here, we are destructuring to extract the `password` property and the rest of the properties from the `validUser._doc` object. 
+  - `password: pass` extracts the `password` property from the `validUser._doc` and renames it to `pass`.
+  - `...rest` collects the remaining properties of `validUser._doc` into a new object called `rest`. 
+
+  - Rewrite the response as: <br>
+  ```
+  res
+  .cookie("access_token", token, { httpOnly: true })
+  .status(200)
+  .json(rest);
+  ```
+
+  - When we test the api on insomnia, we see that the preview does not have the password property showing. This is what we want. Therefore the password won't be leaked to the user.
+
+- Complete the sign in page functionality by copy pasting sign up page code and remove the excessive code and trim it to what is required for a sign in. 
+- Change the navigation route to home page and change all sign up to sign in. 
+- Remove username, keep only email and password. Verify that the access_token is created and also verify that the cookie remains in session by refreshing the page and seeing. 
+- Try entering wrong credentials into sign in page to ensure that the correct errors are displayed.
+
+# Redux Setup
+
+### 1. Install Redux Toolkit:
+> npm install @reduxjs/toolkit react-redux
+
+### 2. Create Redux Store:
+- Inside `src`, create a `redux` folder.
+- Create `store.js`:
+```
+import { configureStore } from '@reduxjs/toolkit';
+import userReducer from './user/userSlice';
+
+export const store = configureStore({
+  reducer: {
+    user: userReducer,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+    serializableCheck: false,
+  }),
+});
+```
+
+- In `main.jsx`, wrap `<App />` with `<Provider>`:
+```
+import { store } from "./redux/store.js";
+import { Provider } from "react-redux";
+
+<Provider store={store}>
+  <App />
+</Provider>
+```
+
+### 3. Create User Slice:
+
+- Inside `redux`, create a `user` folder.
+- Create `userSlice.js`:
+```
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  currentUser: null,
+  error: null,
+  loading: false,
+};
+
+const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    signInStart: (state) => { state.loading = true; },
+    signInSuccess: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    signInFailure: (state, action) => {
+      state.error = action.payload;
+      state.loading = false;
+    },
+    // Other reducers for update, delete, etc.
+  },
+});
+
+export const { signInStart, signInSuccess, signInFailure } = userSlice.actions;
+export default userSlice.reducer;
+```
+
+# Persistent State with Redux Persist
+
+### 1. Install Redux Persist:
+> npm install redux-persist
+
+### 2. Configure Redux Persist:
+- Modify `store.js`:
+```
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import userReducer from './user/userSlice.js';
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
+const rootReducer = combineReducers({ user: userReducer });
+const persistConfig = { key: 'root', storage, version: 1 };
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
+});
+
+export const persistor = persistStore(store);
+```
+
+- Modify `main.jsx`:
+```
+import { persistor, store } from "./redux/store.js";
+import { PersistGate } from "redux-persist/integration/react";
+
+<Provider store={store}>
+  <PersistGate loading={null} persistor={persistor}>
+    <App />
+  </PersistGate>
+</Provider>
+```
+
+# OAuth Implementation with Firebase
+
+### 1. Set Up Firebase:
+- Create a Firebase project and web app.
+- Install Firebase:
+> npm install firebase
+
+- Create `firebase.js` in `src`:
+```
+import { initializeApp } from "firebase/app";
+
+const firebaseConfig = { /* Your Firebase config */ };
+export const app = initializeApp(firebaseConfig);
+```
+
+### 2. Enable Google Authentication:
+- In Firebase Console, enable Google authentication under Authentication > Sign-in methods.
+
+### 3. Create OAuth Component:
+- Create `Oauth.jsx` in `components`:
+```
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { signInSuccess } from "../redux/user/userSlice.js";
+import { app } from "../firebase.js";
+
+const Oauth = () => {
+  const dispatch = useDispatch();
+
+  const handleGoogleClick = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const auth = getAuth(app);
+      const result = await signInWithPopup(auth, provider);
+      const res = await fetch("/api/auth/google", { method: "POST", body: JSON.stringify(result.user) });
+      const data = await res.json();
+      dispatch(signInSuccess(data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return <button onClick={handleGoogleClick}>Continue with Google</button>;
+};
+
+export default Oauth;
+```
+### 4. Set Up Google Sign-In API:
+- In `auth.controller.js`, create `google` function:
+```
+export const google = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = user._doc;
+      res.cookie("access_token", token, { httpOnly: true }).status(200).json(rest);
+    } else {
+      const hashedPassword = bcryptjs.hashSync(Date.now().toString(), 10);
+      const newUser = new User({ username: req.body.displayName, email: req.body.email, password: hashedPassword });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = newUser._doc;
+      res.cookie("access_token", token, { httpOnly: true }).status(200).json(rest);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a new route in `auth.route.js`:
+> router.post("/google", google);
+
+# Private and Protected Routes
+
+### 1. Create Private Route Component:
+- Create `PrivateRoute.jsx`:
+```
+import { useSelector } from "react-redux";
+import { Outlet, Navigate } from "react-router-dom";
+
+const PrivateRoute = () => {
+  const { currentUser } = useSelector((state) => state.user);
+  return currentUser ? <Outlet /> : <Navigate to="/sign-in" />;
+};
+
+export default PrivateRoute;
+```
+
+### 2. Protect Profile Route:
+- In `App.jsx`, wrap the `Profile` route with `PrivateRoute`:
+```
+<Route element={<PrivateRoute />}>
+  <Route path="/profile" element={<Profile />} />
+</Route>
+```
+
+# Profile Page with Image Upload
+
+### 1. Design Profile Page:
+- Use `useSelector` to access `currentUser`:
+> const { currentUser } = useSelector((state) => state.user);
+
+- Create an `input` element for image upload and a hidden `fileRef` using `useRef`:
+```
+const fileRef = useRef(null);
+<input type="file" ref={fileRef} accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
+<img onClick={() => fileRef.current.click()} src={currentUser.avatar} alt="Profile" />
+```
+
+### 2. Configure Firebase Storage:
+- Set up Firebase Storage with the following rules:
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+      allow write: if
+      request.resource.size < 2 * 1024 * 1024 &&
+      request.resource.contentType.matches('image/.*')
+    }
+  }
 }
-else we set it as false anyway outside the if statement
-enter this entire portion into try{}catch(error){} block and handle the setError() and setLoading() functions correctly
-add a conditional <p> tag as an error which displays the error onto the frontend screen
-perfect!
-\\
-now let us display a message called user created successfully onto our frontend
-we use the useNavigate hook from react-router-dom
+```
+
+### 3. Handle Image Upload:
+- Create the `handleFileUpload` function in `Profile.jsx`:
+```
+const handleFileUpload = (file) => {
+  const storage = getStorage(app);
+  const fileName = new Date().getTime() + file.name;
+  const storageRef = ref(storage, fileName);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  uploadTask.on(
+    "state_changed",
+    (snapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      setFilePerc(Math.round(progress));
+    },
+    (error) => {
+      setFileUploadError(true);
+    },
+    () => {
+      getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        setFormData({ ...formData, avatar: downloadURL });
+      });
+    }
+  );
+};
+```
+- Update the UI to show progress, errors, and success messages.
+
+# User Account Management
+
+### 1. Create Update User API:
+- In `user.controller.js`, create `updateUser` function:
+```
+export const updateUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, 'You can only update your own account!'));
+  }
+  try {
+    if (req.body.password) {
+      req.body.password = bcryptjs.hashSync(req.body.password, 10);
+    }
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+    const { password, ...rest } = updatedUser._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+```
+- Add a `route` in `user.route.js`:
+> router.post('/update/:id', verifyToken, updateUser);
+
+
+### 2. Link Frontend and Backend:
+- Use `useDispatch` and `useSelector` in `Profile.jsx` for updating user information.
+- Handle form submission with the `handleSubmit` function:
+```
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    dispatch(updateUserStart());
+    const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    if (data.success === false) {
+      dispatch(updateUserFailure(data.message));
+      return;
+    }
+    dispatch(updateUserSuccess(data));
+    setUpdateSuccess(true);
+  } catch (error) {
+    dispatch(updateUserFailure(error.message));
+  }
+};
+```
+
+### 3. Delete User Account:
+- In `user.controller.js`, create `deleteUser` function:
+```
+export const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "You can only delete your own account!"));
+  }
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.clearCookie('access_token');
+    res.status(200).json("User has been deleted!");
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a route in `user.route.js`:
+> router.delete('/delete/:id', verifyToken, deleteUser);
+
+### 4. Sign Out User:
+
+- In `auth.controller.js`, create `signOut` function:
+```
+export const signOut = async (req, res, next) => {
+  try {
+    res.clearCookie('access_token');
+    res.status(200).json('User has been logged out!');
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a route in `auth.route.js`:
+> router.get("/signout", signOut);
+
+### 5. Update Redux for Sign Out:
+
+- Add sign out reducers in `userSlice.js`:
+```
+signOutUserStart: (state) => { state.loading = true; },
+signOutUserSuccess: (state) => {
+  state.currentUser = null;
+  state.loading = false;
+  state.error = null;
+},
+signOutUserFailure: (state, action) => {
+  state.error = action.payload;
+  state.loading = false;
+},
+```
+
+# Listings Management
+
+### 1. Create Listing Model:
+
+- Create `listing.model.js` in `models`:
+```
+import mongoose from "mongoose";
+
+const listingSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  address: { type: String, required: true },
+  regularPrice: { type: Number, required: true },
+  discountPrice: { type: Number, required: true },
+  bathrooms: { type: Number, required: true },
+  furnished: { type: Boolean, required: true },
+  parking: { type: Boolean, required: true },
+  type: { type: String, required: true },
+  offer: { type: Boolean, required: true },
+  imageUrls: { type: Array, required: true },
+  userRef: { type: String, required: true },
+}, { timestamps: true });
+
+const Listing = mongoose.model("Listing", listingSchema);
+export default Listing;
+```
+
+### 2. Create Listing API:
+
+- Create `listing.route.js`:
+```
+import express from "express";
+import { createListing } from "../controllers/listing.controller.js";
+import { verifyToken } from "../utils/verifyUser.js";
+
+const router = express.Router();
+router.post('/create', verifyToken, createListing);
+export default router;
+```
+
+- In `listing.controller.js`, create `createListing` function:
+```
+import Listing from "../models/listing.model.js";
+
+export const createListing = async (req, res, next) => {
+  try {
+    const listing = await Listing.create(req.body);
+    return res.status(201).json(listing);
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add the listing route in `index.js`:
+```
+import listingRouter from './routes/listing.route.js';
+app.use('/api/listing', listingRouter);
+```
+
+### 3. Create Listing Page UI:
+- Design the UI for `CreateListing.jsx`.
+- Handle form submission, image upload using Firebase Storage, and validation.
+
+### 4. Get User Listings API:
+- In `user.controller.js`, create `getUserListings` function:
+```
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await Listing.find({ userRef: req.params.id });
+      res.status(200).json(listings);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    return next(errorHandler(401, "You can only view your own listings!"));
+  }
+};
+```
+
+- Add a `route` in `user.route.js`:
+> router.get('/listings/:id', verifyToken, getUserListings);
+
+### 5. Delete User Listing API:
+
+- In `listing.controller.js`, create deleteListing function:
+```
+export const deleteListing = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) return next(errorHandler(404, "Listing not found!"));
+  if (req.user.id !== listing.userRef) return next(errorHandler(401, "You can only delete your own listing!"));
+  try {
+    await Listing.findByIdAndDelete(req.params.id);
+    res.status(200).json("Listing has been deleted!");
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a `route` in `listing.route.js`:
+> router.delete('/delete/:id', verifyToken, deleteListing);
+
+
+- Add `delete` functionality to the profile page in `Profile.jsx`.
+
+### 6. Update Listing API:
+- In `listing.controller.js`, create `updateListing` function:
+
+```
+export const updateListing = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) return next(errorHandler(404, "Listing not found!"));
+  if (req.user.id !== listing.userRef) return next(errorHandler(401, "You can only update your own listings!"));
+  try {
+    const updatedListing = await Listing.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedListing);
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+- Add a `route` in `listing.route.js`:
+> router.post('/update/:id', verifyToken, updateListing);
+
+- Create an `UpdateListing.jsx` page to handle listing updates.
+
+### 7. Image Slider for Listings:
+
+- Install Swiper:
+> npm install swiper
+
+- Create a `Listing.jsx` page and add the image slider.
+
+# Search Functionality
+
+### 1. Create Search API:
+
+- Add a route in `listing.route.js`:
+```
+import { getListings } from "../controllers/listing.controller.js";
+router.get("/get", getListings);
+```
+
+- In `listing.controller.js`, create getListings function:
+```
+export const getListings = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 9;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+
+    let offer = req.query.offer;
+    if (offer === undefined || offer === "false") offer = { $in: [false, true] };
+
+    let furnished = req.query.furnished;
+    if (furnished === undefined || furnished === "false") furnished = { $in: [false, true] };
+
+    let parking = req.query.parking;
+    if (parking === undefined || parking === "false") parking = { $in: [false, true] };
+
+    let type = req.query.type;
+    if (type === undefined || type === "all") type = { $in: ["sale", "rent"] };
+
+    const searchTerm = req.query.searchTerm || "";
+    const sort = req.query.sort || "createdAt";
+    const order = req.query.order || "desc";
+
+    const listings = await Listing.find({
+      name: { $regex: searchTerm, $options: "i" },
+      offer, furnished, parking, type,
+    }).sort({ [sort]: order }).limit(limit).skip(startIndex);
+
+    return res.status(200).json(listings);
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+### 2. Add Search Form Functionality:
+
+- In `Header.jsx`, add a search input field and handle form submission:
+```
+const [searchTerm, setSearchTerm] = useState("");
 const navigate = useNavigate();
-and within the try catch block after setError(null), we write navigate("/sign-in");
-done!
-\\
-Create Sign In API route
-now we go to api/controllers/auth.controller.js
-we create a new function called signin with the same parameters request, response and next
-email and password is requested from body
-we then add a try{}catch(){} block
-to validate email in mongoose/mongodb, we use the User (which is the model that we have created) and findOne cluster
-findOne({ email: email});
-if email was not found, call our custom error called errorHandler and pass 404 as the argument
-else, if email was found, we need to check the password
-while checking the password, we need to compare the password currently input by the user and the existing password that has been encrypted and stored in the db
-const validPassword = bcryptjs.compareSync(password, validUser.password);
-\\
-if we need to ensure that the username and password is correct, we need to authenticate it.
-we use cookies to authenticate the username and password inside the browser.
-we need to create a hash token that include the id of the user and we save this token inside the browser cookies.
-the best package to hash the data is json web tokens package.
-we now need to create the hashed value of the users using the JWT.
-in the root directory, npm install jsonwebtoken
-import at the top of the auth.controller.js file import jwt from 'jsonwebtoken';
-then within the try block after checking for validUsername and validPassword, we do const token = jwt.sign({ id: validUser.\_id }, process.env.JWT_SECRET);
-\_id is a primary key generated by mongodb.
-process.env.JWT_SECRET is the key. the .env is a hidden file and it contains the JWT secret and must not be publicly hosted.
-the JWT_SECRET can be anything of your choice.
-now, we take the response from the user and store it in a cookie and we call this cookie, "access_token"
-httpOnly: true for secure sites only to store the cookie
-json(validUser) is the part of the user information (username) that we are collecting and storing with the cookie
-\\
-now to check the api, we go to insomnia and create a folder called sign in
-the api call is post with url: localhost:3000/api/auth/signin
-we only need email and password in the body here
-we need to call the signin function written and exported in auth.controller.js into auth.route.js in the following way:
-router.post("/signin", signin);
-make sure that signin is also imported at the top of auth.route.js
-perfect, now we test it, we get 200 OK which is the ok response we created and the cookie is created inside with the access_token as the variable which is a hashed value.
-because it is not best practice to display the hashed password after authentication even on the console, we need to ensure that it is removed.
-we add the following line: const { password: pass, ...rest } = validUser.\_doc;
-here, we are destructuring to extract the 'password' property and the rest of the properties from the 'validUser.\_doc' object
-'password: pass' extracts the 'password' property from the validUser.\_doc and renames it to 'pass'
-'...rest' collects the remaining properties of 'validUser.\_doc' into a new object called 'rest'
-then we rewrite the response as:
-res
-.cookie("access_token", token, { httpOnly: true })
-.status(200)
-.json(rest);
-now when we test the api on insomnia, we see that the preview does not have the password property showing. This is what we want.
-therefore the password won't be leaked to the user.
-git push
-\\
-Complete the sign in page functionality
-copy paste sign up page code and remove the excessive code and trim it to what is required for a sign in
-change the navigation route to home page
-change all sign up to sign in
-remove username, keep only email and password
-verify that the access_token is created and also verify that the cookie remains in session by refreshing the page and seeing
-try entering wrong credentials into sign in page to ensure that the correct errors are displayed
-git push
-\\
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const urlParams = new URLSearchParams(window.location.search);
+  urlParams.set("searchTerm", searchTerm);
+  const searchQuery = urlParams.toString();
+  navigate(`/search?${searchQuery}`);
+};
+```
+
+### 3. Create Search Page UI:
+- Design the `Search.jsx` page and handle the display of search results.
+
+### 4. Add Show More Listings Functionality:
+- Add a "Show More" button in the search page to load more listings:
+```
+const onShowMoreClick = async () => {
+  const numberOfListings = listings.length;
+  const startIndex = numberOfListings;
+  const urlParams = new URLSearchParams(location.search);
+  urlParams.set("startIndex", startIndex);
+  const searchQuery = urlParams.toString();
+  const res = await fetch(`/api/listing/get?${searchQuery}`);
+  const data = await res.json();
+  if (data.length < 9) setShowMore(false);
+  setListings([...listings, ...data]);
+};
+```
+
+# Final Touches
+
+### 1. Complete Home and About Pages:
+- Design and complete the `Home.jsx` and `About.jsx` pages.
+
+### 2. Deploy to Render:
+- Update the `package.json` file in the root directory with the following script:
+```
+"build": "npm install && npm install --prefix serenity-homes-ui && npm run build --prefix serenity-homes-ui"
+```
+- In `index.js`, serve the built frontend files:
+```
+import path from "path";
+const __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "/serenity-homes-ui/dist/")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "serenity-homes-ui", "dist", "index.html"));
+});
+```
+
+- Push the code to GitHub and deploy to [Render](https://render.com).
+
+
+
+
 now we create a global state using redux toolkit to ensure that the logged in user's info is used in all places while in session
 go to the ui folder and install npm install @reduxjs/toolkit react-redux
 inside the ui folder, go to src folder. under src, create a folder called redux
@@ -1953,6 +2671,11 @@ app.get("*", (req, res) => {
 ```
 
 git push
+
+\\
+go to render 
+create an account if you don't have one 
+
 
 
 
