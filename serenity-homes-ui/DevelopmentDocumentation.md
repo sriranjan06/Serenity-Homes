@@ -896,6 +896,42 @@ signOutUserFailure: (state, action) => {
 },
 ```
 
+ - Additional Notes: 
+  Creating update `user` api route
+
+  - We go to api/utils and create a new file called verifyUser.js
+  - In the root folder of our project, we need to install another package called cookie parser: 
+  > npm install cookie-parser
+
+  - we need to initialse this cookie parser within our api: 
+  `api/index.js`
+  ```
+  import cookieParser from 'cookie-parser';
+  app.use(cookieParser());
+  ```
+
+  - Go to `verifyUser.js`
+  ```
+  import { errorHandler } from "./error.js";
+  import jwt from 'jsonwebtoken';
+
+  export const verifyToken = (req, res, next) => {
+      const token = req.cookies.access_token;
+
+      if (!token) {
+          return next(errorHandler(401, 'Unauthorized'));
+      }
+
+      jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+          if (err) {
+              return next(errorHandler(403, 'Forbidden'));
+          }
+          req.user = user;
+          next();
+      });
+  }
+  ```
+
 # Listings Management
 
 ### 1. Create Listing Model:
@@ -1002,6 +1038,65 @@ export const deleteListing = async (req, res, next) => {
 
 
 - Add `delete` functionality to the profile page in `Profile.jsx`.
+
+- The req.user.id comes from api/utils/verifyUser.js through the jwt.verify();
+- The req.params.id comes from api/routes/user.route.js through router.delete('/delete/:id', verifyToken, deleteUser); where the ':id' is the params
+
+- Now we go to the frontend: `ui/src/redux/user/userSlice.js`
+- Here we declare three more reducers that are:
+```
+        deleteUserStart: (state) => {
+            state.loading = true;
+        },
+        deleteUserSuccess: (state) => {
+            state.currentUser = null;
+            state.loading = false;
+            state.error = null;
+        },
+        deleteUserFailure: (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        },
+```
+
+- Then we export these actions and reducers: 
+```
+export const {
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure
+} = userSlice.actions;
+export default userSlice.reducer;
+```
+
+- Now we go to Profile.jsx and we import these reducers from userSlice.js
+- Go to the `<span>Delete</span>` and add an event listener:
+`onClick={handleDeleteUser}`. 
+- We define the handleDeleteUser function:
+
+```
+const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+```
+
+- Test this out on insomnia with a seperate DELETE method: 
+> localhost:3000/api/user/delete/:id
 
 ### 6. Update Listing API:
 - In `listing.controller.js`, create `updateListing` function:
@@ -1140,278 +1235,7 @@ app.get("*", (req, res) => {
 
 
 
-\\
-creating update user api route
 
-go to api/routes/user.route.js
-within this file, write:
-router.post('/update/:id', updateUser);
-
-we need to go to api/controllers/user.controller.js
-declare function updateUser:
-export const updateUser = (req, res, next) => {}
-
-now we import this same updateUser function into user.route.js file.
-
-next, we go to api/utils and create a new file called verifyUser.js
-in the root folder of our project, we need to install another package called cookie parser
-
-`npm install cookie-parser`
-we need to initialse this cookie parser within our api.
-api/index.js
-import cookieParser from 'cookie-parser';
-app.use(cookieParser());
-
-now we have initialised it. go to verifyUser.js
-
-```
-import { errorHandler } from "./error.js";
-import jwt from 'jsonwebtoken';
-
-export const verifyToken = (req, res, next) => {
-    const token = req.cookies.access_token;
-
-    if (!token) {
-        return next(errorHandler(401, 'Unauthorized'));
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return next(errorHandler(403, 'Forbidden'));
-        }
-        req.user = user;
-        next();
-    });
-}
-```
-
-go to api/routes/user.route.js
-import { verifyToken } from "../utils/verifyUser.js";
-router.post('/update/:id', verifyToken, updateUser);
-
-go to api/controllers/user.controller.js
-here we define the updateUser function
-
-```
-export const updateUser = async (req, res, next) => {
-    if (req.user.id !== req.params.id) {
-        return next(errorHandler(401, 'You can only update your own account!'));
-    }
-
-    try {
-        if (req.body.password) {
-            req.body.password = bcryptjs.hashSync(req.body.password, 10);
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, {
-            $set: {
-                username: req.body.username,
-                email: req.body.email,
-                password: req.body.password,
-                avatar: req.body.avatar,
-            },
-        }, { new: true });
-
-        const { password, ...rest } = updatedUser._doc;
-        res.status(200).json(rest);
-
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-now we can test this on insomnia
-create a folder called user
-create a post api call called update user
-http://localhost:3000/api/user/update/:id this is the endpoint to test the updateUser api.
-
-git push
-
-\\
-complete update user functionality and link frontend and backend
-
-we start with ui/src/redux/user/userSlice.js
-here we declare three reducers { updateUserStart, updateUserSuccess, updateUserFailure }
-then we export these are userSlice.actions to make these reducers accessible globally
-
-go to ui/src/pages/Profile.jsx
-
-```
-import {
-  updateUserStart,
-  updateUserFailure,
-  updateUserSuccess,
-} from "../redux/user/userSlice.js";
-```
-
-we also need to import `import { useSelector, useDispatch } from "react-redux";` in order to use the reducers in our Profile.jsx file
-
-useStateSnippet for const [formData, setFormData] = useState({}) initialize as an empty object
-we always need to declare const dispatch = useDispatch(); if we need to use the reducer.
-
-`  const { currentUser, loading, error } = useSelector((state) => state.user);` This is how we get the state of the current user into currentUser variable.
-
-go to the input fields of username, email and fefaultValue = {currentUser.username}
-at the beginning of the <form> tag, we declare an event listener <form onSubmit={handleSubmit}>
-
-now we define the handleSubmit function as:
-
-```
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      dispatch(updateUserStart());
-
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (data.success === false) {
-        dispatch(updateUserFailure(data.message));
-        return;
-      }
-
-      dispatch(updateUserSuccess(data));
-      setUpdateSuccess(true);
-    } catch (error) {
-      dispatch(updateUserFailure(error.message));
-    }
-  };
-```
-
-we also add onChange={handleChange} event listeners to our username, email and password fields to be handle changes in the following manner:
-
-```
-const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
-```
-
-we declare two paragraph tags to show updating progress and errors outside the form tag for progress feedback to the user.
-git push
-
-\\
-Delete user functionality
-go to api/controllers/user.controller.js
-declare the function:
-
-```
-export const deleteUser = async (req, res, next) => {
-
-}
-```
-
-go to api/routes/user.route.js and define:
-`router.delete('/delete/:id', verifyToken, deleteUser);`
-
-go back to user.controller.js and define the deleteUser function clearly:
-
-```
-export const deleteUser = async (req, res, next) => {
-    if (req.user.id !== req.params.id) {
-        return next(errorHandler(401, "You can only delete your own account!"));
-    }
-
-    try {
-        await User.findByIdAndDelete(req.params.id);
-        res.clearCookie('access_token');
-        res.status(200).json("User has been deleted!");
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-The req.user.id comes from api/utils/verifyUser.js through the jwt.verify();
-The req.params.id comes from api/routes/user.route.js through router.delete('/delete/:id', verifyToken, deleteUser); where the ':id' is the params
-
-No we go to the frontend.
-ui/src/redux/user/userSlice.js
-
-Here we declare three more reducers that are:
-
-```
-        deleteUserStart: (state) => {
-            state.loading = true;
-        },
-        deleteUserSuccess: (state) => {
-            state.currentUser = null;
-            state.loading = false;
-            state.error = null;
-        },
-        deleteUserFailure: (state, action) => {
-            state.error = action.payload;
-            state.loading = false;
-        },
-```
-
-Then we export these actions and reducers
-export const {
-deleteUserStart,
-deleteUserSuccess,
-deleteUserFailure
-} = userSlice.actions;
-export default userSlice.reducer;
-
-Now we go to Profile.jsx and we import these reducers from userSlice.js
-go to the <span>Delete</span> and add an event listener:
-onClick={handleDeleteUser}
-Then we define the handleDeleteUser function:
-
-```
-const handleDeleteUser = async () => {
-    try {
-      dispatch(deleteUserStart());
-
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
-        return;
-      }
-      dispatch(deleteUserSuccess(data));
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
-    }
-  };
-```
-
-test this out on insomnia with a seperate DELETE method `localhost:3000/api/user/delete/:id`
-git push
-
-\\
-
-Add sign out user functionality
-This is the exact same as delete use functionality:
-
-1. go to api
-2. api/controllers/auth.controller.js and define signOut function in the backend:
-
-```
-export const signOut = async (req, res, next) => {
-    try {
-        res.clearCookie('access_token');
-        res.status(200).json('User has been logged out!');
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-3. go to api/routes/auth.route.js and import the signOut function from auth.controller.js
-
-```
-router.get("/signout", signOut);
 ```
 
 4. go to frontend. ui/src/redux/user/userSlice.js
@@ -1676,56 +1500,7 @@ const storeImage = async (file) => {
 
 now we define the handleSubmit() function
 
-```
-const handleImageSubmit = (e) => {
-    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
-      setUploading(true);
-      setImageUploadError(false);
-      const promises = [];
 
-      for (let i = 0; i < files.length; i++) {
-        promises.push(storeImage(files[i]));
-      }
-      Promise.all(promises)
-        .then((urls) => {
-          setFormData({
-            ...formData,
-            imageUrls: formData.imageUrls.concat(urls),
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch((err) => {
-          setImageUploadError("Image upload failed (2 mb max per image)");
-          setUploading(false);
-        });
-    } else {
-      setImageUploadError("You can only upload 6 images per listing");
-      setUploading(false);
-    }
-  };
-
-```
-
-add two more useState snippets:
-
-```
-  const [imageUploadError, setImageUploadError] = useState(false);
-  const [uploading, setUploading] = useState(false);
-```
-
-now we modify the uploading button to handle and display the uploading... functionality:
-
-```
-            <button
-              type="button"
-              disabled={uploading}
-              onClick={handleImageSubmit}
-              className="p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80"
-            >
-              {uploading ? "Uploading..." : "Upload"}
-            </button>
-```
 
 then we need to display the uploaded images to the user
 we declare a <p> tag after the uploading functionality
