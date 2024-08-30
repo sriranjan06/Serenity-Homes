@@ -877,6 +877,64 @@ export const signOut = async (req, res, next) => {
 };
 ```
 
+- Go to the frontend. `ui/src/redux/user/userSlice.js`
+- Define three reducers for the signOut functionality:
+
+```
+signOutUserStart: (state) => {
+            state.loading = true;
+        },
+        signOutUserSuccess: (state) => {
+            state.currentUser = null;
+            state.loading = false;
+            state.error = null;
+        },
+        signOutUserFailure: (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        },
+```
+
+- Export these reducers
+
+```
+export const {
+  signOutUserStart,
+  signOutUserSuccess,
+  signOutUserFailure,
+} = userSlice.actions;
+export default userSlice.reducer;
+```
+
+- `ui/src/pages/Profile.jsx` and go to the `<span>Sign Out</span>`
+- Add an event listener to this `<span>`
+
+```
+onClick={handleSignOut}
+```
+
+- Define the `handleSignOut` function:
+
+```
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutUserStart());
+
+      const res = await fetch("api/auth/signout");
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(data.message));
+    }
+  };
+```
+
 - Add a route in `auth.route.js`:
 > router.get("/signout", signOut);
 
@@ -992,9 +1050,305 @@ import listingRouter from './routes/listing.route.js';
 app.use('/api/listing', listingRouter);
 ```
 
+- Test this in insomnia
+- Create a new folder called listing
+- Create a POST request called create listing with the link:
+> localhost:3000/api/listing/create
+
+- Add the following JSON in the body and send:
+
+```
+{
+	"name": "test",
+	"description": "test",
+	"address": "test",
+	"regularPrice": 500,
+	"discountPrice": 500,
+	"bathrooms": 5,
+	"bedrooms": 5,
+	"furnished": true,
+	"parking": true,
+	"type": "rent",
+	"offer": true,
+	"imageUrls": ["abcdef", "ghijkl"],
+	"userRef": "hahahahahaha"
+}
+```
+
 ### 3. Create Listing Page UI:
 - Design the UI for `CreateListing.jsx`.
 - Handle form submission, image upload using Firebase Storage, and validation.
+
+- Complete upload listing images functionality
+
+- Import the firebase app: 
+> import { app } from "../firebase.js";
+
+- We need to import getDownloadUrl, getStorage, ref and uploadBytesResumable from firebase/storage. 
+```
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+```
+
+- Create two useState snippets:
+```
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+  });
+```
+
+- This is to store the files and store imageUrls into formData
+- Go to file input type and add an `onChange={(e) => setFiles(e.target.files)}` event listener. 
+- To the upload button, we add an event `onClick={handleImageSubmit}` event listener.
+
+- Now we need to define two functions that is the `handleSubmit()` and `storeImage()` functions.
+- The storeImage function is defined to store the images that we upload of the listing. It is as follows:
+```
+const storeImage = async (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + file.name;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  };
+```
+
+- Now we define the `handleSubmit()` function
+- Then we need to display the uploaded images to the user
+we declare a `<p>` tag after the uploading functionality.
+```
+          <p className="text-red-700 text-sm">
+            {imageUploadError && imageUploadError}
+          </p>
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((url, index) => (
+              <div
+                key={url}
+                className="flex justify-between p-3 border items-center"
+              >
+                <img
+                  src={url}
+                  alt="listing image"
+                  className="w-20 h-20 object-contain rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+```
+
+- Each image needs to a have a `key={}` attribute when we are declaring a `map()` function.
+- We also need a delete functionality for each image that we upload.
+- The delete button calls an event listener `onClick` and we call the `handleRemoveImage` function.
+```
+  <button
+    type="button"
+    onClick={() => handleRemoveImage(index)}
+    className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+  >
+    Delete
+  </button>
+```
+
+- To stop the `handleRemoveImage(index)` from automatically executing, we write it as an ambigious function.
+
+- The handleRemoveImage(index) function is defined as follows:
+```
+const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
+    });
+  };
+```
+
+- Complete create listing page functionality
+- Import `useSelector` for using `currentUser` details
+- Import `useNavigate` from `react-router-dom` to navigate to different pages
+
+```
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+```
+
+- Declare `currentUser` and `naviagate`
+```
+  const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+```
+
+- Declare all the default values of all the variables of the form
+```
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+    name: "",
+    description: "",
+    address: "",
+    type: "rent",
+    bedrooms: 1,
+    bathrooms: 1,
+    regularPrice: 50,
+    discountPrice: 0,
+    offer: false,
+    parking: false,
+    furnished: false,
+  });
+```
+
+- We need two `useState` for loading and errors
+```
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+```
+
+- Add `onChange={handleChange}` event listeners and `value={}` for every single input field in the form.
+- Define the `handleChange` function which specifically caters to the different types of input that we accept.
+
+```
+const handleChange = (e) => {
+    // This if is for sale and rent
+    if (e.target.id === "sale" || e.target.id === "rent") {
+      setFormData({
+        ...formData,
+        type: e.target.id,
+      });
+    }
+
+    // This if is for parking, furnished and offer
+    if (
+      e.target.id === "parking" ||
+      e.target.id === "furnished" ||
+      e.target.id === "offer"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.checked,
+      });
+    }
+
+    // This if is for name, description and address
+    if (
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.value,
+      });
+    }
+  };
+```
+
+Add a submit functionality for the entire form with all of its variables
+`<form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">`
+
+- Define the handleSubmit function:
+```
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (formData.imageUrls.length < 1) {
+        return setError("You must upload at least one image!");
+      }
+
+      if (+formData.regularPrice < +formData.discountPrice) {
+        return setError("Discount price must be lower than regular price!");
+      }
+
+      setLoading(true);
+      setError(false);
+
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id,
+        }),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success === false) {
+        setError(data.message);
+      }
+      navigate(`/listing/${data._id}`);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+```
+
+- Create the listings item component and show listings.
+- We can clamp a two line truncated statement: 
+> npm install -D @tailwindcss/line-clamp
+
+\\
+Add show more listings functionality
+
+1. add the show more listings button in the same div as the loading display
+```
+          {/* show more listings button */}
+          {showMore && (
+            <button
+              onClick={onShowMoreClick}
+              className="text-green-700 hover:underline p-7 text-center w-full"
+            >
+              Show more
+            </button>
+          )}
+```
+
+2. define the onShowMoreClick function
+```
+  const onShowMoreClick = async () => {
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+
+    if (data.length < 9) {
+      setShowMore(false);
+    }
+    setListings([...listings, ...data]);
+  };
+```
 
 ### 4. Get User Listings API:
 - In `user.controller.js`, create `getUserListings` function:
@@ -1098,6 +1452,47 @@ const handleDeleteUser = async () => {
 - Test this out on insomnia with a seperate DELETE method: 
 > localhost:3000/api/user/delete/:id
 
+- Go to ui/src/pages/Profile.jsx
+
+- Go to the `<button>Delete</button>` and add an `onClick` event listener to this
+
+```
+<button
+  onClick={() => handleListingDelete(listing._id)}
+  className="text-red-700 uppercase"
+>
+  Delete
+</button>
+```
+
+- Define the handleListingDelete() function
+
+```
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+
+      setUserListings((prev) => {
+        prev.filter((listing) => listing._id !== listingId);
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+```
+
+- Test on insomnia
+- Create a delete request with api: http://localhost:3000/api/listing/delete/:id
+- Test it for a particular user and try to delete each listing
+
 ### 6. Update Listing API:
 - In `listing.controller.js`, create `updateListing` function:
 
@@ -1120,12 +1515,73 @@ export const updateListing = async (req, res, next) => {
 
 - Create an `UpdateListing.jsx` page to handle listing updates.
 
+- Go to `ui/src/pages` and create a new page called `UpdateListing.jsx`
+- Copy all the contents of the `CreateListing.jsx` page into the `UpdateListing.jsx` and change create to update everywhere
+
+- In `App.jsx`: 
+```
+import UpdateListing from "./pages/UpdateListing";
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/create-listing" element={<CreateListing />} />
+          <Route
+            path="/update-listing/:listingId"
+            element={<UpdateListing />}
+          />
+        </Route>
+```
+
+- Go to the profile page and add a `<Link></Link>` tag which is imported from `react-router-dom`
+```
+  <Link to={`/update-listing/${listing._id}`}>
+    <button className="text-green-700 uppercase">Edit</button>
+  </Link>
+```
+- Read the `UpdateListing.jsx` code more carefully for better understanding!
+
 ### 7. Image Slider for Listings:
 
 - Install Swiper:
 > npm install swiper
 
 - Create a `Listing.jsx` page and add the image slider.
+
+- Add image slider to the listing page
+
+  1. go to `ui/src/pages` and create `Listing.jsx`
+  2. go to ui root folder and `npm install swiper`
+  3. go to `App.jsx` and import the page
+   `import Listing from "./pages/Listing";`
+  4. This is a public page so just declare this page as a Route within the Routes
+   `<Route path="/listing/:listingId" element={<Listing />} />`
+
+- This basically adds the image swiping functionality for our listing pages. 
+
+### 8. Add contact landlord functionality completely
+- Go to `api/controllers/user.controller.js` and define the getUser function: 
+```
+export const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(errorHandler(404, 'User not found!'));
+        }
+
+        const { password: pass, ...rest } = user._doc;
+        res.status(200).json(rest);
+    } catch (error) {
+        next(error);
+    }
+};
+```
+
+- Go to `api/routes/user.route.js`:
+```
+import { deleteUser, test, updateUser, getUserListings, getUser } from "../controllers/user.controller.js";
+router.get('/:id', verifyToken, getUser);
+```
+
+- Design the entire `Contact.jsx` page and update the changes in `Listing.jsx` as well so that it can successfully write an email to the user.
 
 # Search Functionality
 
@@ -1188,6 +1644,43 @@ const handleSubmit = (e) => {
 };
 ```
 
+  1. Function Definition: 
+    - This line defines an asynchronous function getListings, which is exported for use in other parts of your application. The function takes three arguments:
+    - req: The request object, which contains information about the HTTP request (e.g., query parameters, headers).
+    - res: The response object, used to send back the desired HTTP response.
+    - next: A function used to pass control to the next middleware in case of an error.
+  2. Try-Catch Block: 
+  - The code inside this try block is executed. If an error occurs, it is caught by the catch block.
+  3. Extracting Query Parameters with Defaults
+  - These lines extract limit and startIndex from the query parameters in the request (req.query).
+  - limit determines how many results to return, with a default value of 9 if not provided.
+  - startIndex determines the starting point for pagination, with a default value of 0 if not provided.
+  - parseInt is used to convert the query parameters from strings to integers.
+  4. Handling Boolean Filters
+  - This section deals with the offer query parameter:
+  - If offer is undefined or "false", the offer variable is set to an object { $in: [false, true] }. This means the query will include listings where offer can be either false or true.
+  - This logic is used to ensure that if no specific offer filter is provided, the query includes all listings.
+  - Similar logic applies to the furnished parameter, where the listings can be either furnished or unfurnished if the parameter is not specified.
+  - The same logic is used for the parking parameter, allowing listings with or without parking.
+  5. Handling Type Filter
+  - The type parameter filters listings by their type (e.g., "sale" or "rent").
+  - If type is undefined or "all", the type variable is set to include both "sale" and "rent" listings.
+  6. Search Term, Sort, and Order Parameters
+  - searchTerm: A string to filter listings based on their name, defaulting to an empty string if not provided.
+  - sort: The field by which the listings should be sorted, defaulting to "createdAt" (assuming the listings have a creation date).
+  - order: The sort order ("asc" for ascending or "desc" for descending), defaulting to "desc" (most recent first).
+  7. Database Query Execution
+  - Listing.find: Executes a MongoDB query on the Listing collection, using the following filters:
+  - name: { $regex: searchTerm, $options: "i" }: Filters listings by name using a case-insensitive regular expression that matches the searchTerm.
+  - offer, furnished, parking, type: These are the filters defined earlier.
+  - .sort({ [sort]: order }): Sorts the results based on the sort field and order direction.
+  - .limit(limit): Limits the number of returned documents to the specified limit.
+  - .skip(startIndex): Skips a number of documents, allowing for pagination.
+  8. Returning the Result
+  - If the query is successful, the results (listings) are returned as a JSON response with a status code of 200 (OK).
+  9. Error Handling
+  - If an error occurs during the query execution, it is passed to the next function, which typically forwards the error to an error-handling middleware.
+
 ### 3. Create Search Page UI:
 - Design the `Search.jsx` page and handle the display of search results.
 
@@ -1206,6 +1699,102 @@ const onShowMoreClick = async () => {
   setListings([...listings, ...data]);
 };
 ```
+
+### 5. Header Search Form Functionality
+- Add the import statements
+```
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+```
+
+- Add `value` and `onChange` event listeners to the search input type
+```
+<input
+  type="text"
+  placeholder="Search..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>
+```
+
+- Place the search functionality icon within the button tags
+```
+<button>
+  <FaSearch className="text-slate-600" />
+</button>
+```
+
+Add an `onSubmit` event listener to the form
+```
+<form onSubmit={handleSubmit}></form>
+```
+
+- Define the `handleSubmit` function
+```
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchTerm", searchTerm);
+
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
+    }
+  }, [location.search]);
+```
+
+> const [searchTerm, setSearchTerm] = useState("");
+- Initializes searchTerm state with an empty string and provides a function setSearchTerm to update it.
+
+> const navigate = useNavigate();
+- Gets the navigate function from React Router for programmatic navigation.
+
+> const handleSubmit = (e) => {
+- Defines a function handleSubmit to handle form submissions.
+
+> e.preventDefault();
+- Prevents the default form submission behavior.
+
+> const urlParams = new URLSearchParams(window.location.search);
+- Creates a URLSearchParams object to manage query parameters from the current URL.
+
+> urlParams.set("searchTerm", searchTerm);
+- Updates the searchTerm query parameter with the current value of searchTerm state.
+
+> const searchQuery = urlParams.toString();
+- Converts the updated query parameters to a string.
+
+> navigate(/search?${searchQuery});
+- Navigates to the /search page with the updated query parameters.
+
+> useEffect(() => {
+- Sets up a side effect that runs when location.search changes.
+
+> const urlParams = new URLSearchParams(location.search);
+- Retrieves the query parameters from the current URL.
+
+> const searchTermFromUrl = urlParams.get("searchTerm");
+- Extracts the searchTerm from the query parameters.
+
+> if (searchTermFromUrl) {}
+- Checks if searchTerm exists in the URL.
+
+> setSearchTerm(searchTermFromUrl);
+Updates the searchTerm state with the value from the URL.
+
+> }, [location.search]);
+- Re-runs the effect whenever location.search changes.
 
 # Final Touches
 
@@ -1236,1013 +1825,18 @@ app.get("*", (req, res) => {
 
 
 
-```
 
-4. go to frontend. ui/src/redux/user/userSlice.js
-5. define three reducers for the signOut functionality:
 
-```
-signOutUserStart: (state) => {
-            state.loading = true;
-        },
-        signOutUserSuccess: (state) => {
-            state.currentUser = null;
-            state.loading = false;
-            state.error = null;
-        },
-        signOutUserFailure: (state, action) => {
-            state.error = action.payload;
-            state.loading = false;
-        },
-```
 
-6. export these reducers
 
-```
-export const {
-  signOutUserStart,
-  signOutUserSuccess,
-  signOutUserFailure,
-} = userSlice.actions;
-export default userSlice.reducer;
-```
 
-7. ui/src/pages/Profile.jsx and go to the <span>Sign Out</span>
-8. add an event listener to this <span>
 
-```
-onClick={handleSignOut}
-```
 
-9. define the handleSignOut function:
 
-```
-  const handleSignOut = async () => {
-    try {
-      dispatch(signOutUserStart());
 
-      const res = await fetch("api/auth/signout");
-      const data = await res.json();
 
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
-        return;
-      }
 
-      dispatch(deleteUserSuccess(data));
-    } catch (error) {
-      dispatch(deleteUserFailure(data.message));
-    }
-  };
-```
 
-git push
-
-\\
-Add create listing API route
-first we create a model called listing.model.js
-this will be the JSON that we store in our mongodb
-api/models/listing.model.js
-
-```
-import mongoose from "mongoose";
-
-const listingSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        required: true,
-    },
-    address: {
-        type: String,
-        required: true,
-    },
-    regularPrice: {
-        type: Number,
-        required: true,
-    },
-    discountPrice: {
-        type: Number,
-        required: true,
-    },
-    bathrooms: {
-        type: Number,
-        required: true,
-    },
-    furnished: {
-        type: Boolean,
-        required: true,
-    },
-    parking: {
-        type: Boolean,
-        required: true,
-    },
-    type: {
-        type: String,
-        required: true,
-    },
-    offer: {
-        type: Boolean,
-        required: true,
-    },
-    imageUrls: {
-        type: Array,
-        required: true,
-    },
-    userRef: {
-        type: String,
-        required: true,
-    },
-}, {
-    timestamps: true
-});
-
-const Listing = mongoose.model("Listing", listingSchema);
-
-export default Listing;
-```
-
-we export default Listing.
-then we go to api/routes/listing.route.js
-here we create the route
-
-```
-import express from "express";
-import { createListing } from "../controllers/listing.controller.js";
-import { verifyToken } from "../utils/verifyUser.js";
-
-const router = express.Router();
-
-router.post('/create', verifyToken, createListing);
-
-export default router;
-
-```
-
-as you can see, in our router.post(), we are calling a function called createListing. We need to define this createListing function
-The createListing function is defined in api/controllers/listing.controller.js
-
-```
-import Listing from "../models/listing.model.js";
-
-export const createListing = async (req, res, next) => {
-    try {
-        const listing = await Listing.create(req.body);
-        return res.status(201).json(listing);
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-now we need to use this listing route in our application
-we go to api/index.js
-
-```
-import listingRouter from './routes/listing.route.js';
-
-app.use('/api/listing', listingRouter);
-```
-
-now we test this in insomnia
-create a new folder called listing
-create a POST request called create listing with the link: localhost:3000/api/listing/create
-add the following JSON in the body and send:
-
-```
-{
-	"name": "test",
-	"description": "test",
-	"address": "test",
-	"regularPrice": 500,
-	"discountPrice": 500,
-	"bathrooms": 5,
-	"bedrooms": 5,
-	"furnished": true,
-	"parking": true,
-	"type": "rent",
-	"offer": true,
-	"imageUrls": ["abcdef", "ghijkl"],
-	"userRef": "hahahahahaha"
-}
-```
-
-this will succeed.
-git push
-
-\\
-Complete create listing page UI
-
-\\
-Complete upload listing images functionality
-
-we import the firebase app
-`import { app } from "../firebase.js";`
-
-we need to import getDownloadUrl, getStorage, ref and uploadBytesResumable from firebase/storage
-
-```
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-```
-
-no we create two useState snippets:
-
-```
-  const [files, setFiles] = useState([]);
-  const [formData, setFormData] = useState({
-    imageUrls: [],
-  });
-```
-
-this is to store the files and store imageUrls into formData
-
-got to file input type and add an onChange={(e) => setFiles(e.target.files)} event listener
-to the upload button, we add an event onClick={handleImageSubmit} event listener
-
-now we need to define two functions that is the handleSubmit() and storeImage() functions
-the storeImage function is defined to store the images that we upload of the listing. It is as follows:
-
-```
-const storeImage = async (file) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  };
-```
-
-now we define the handleSubmit() function
-
-
-
-then we need to display the uploaded images to the user
-we declare a <p> tag after the uploading functionality
-
-```
-          <p className="text-red-700 text-sm">
-            {imageUploadError && imageUploadError}
-          </p>
-          {formData.imageUrls.length > 0 &&
-            formData.imageUrls.map((url, index) => (
-              <div
-                key={url}
-                className="flex justify-between p-3 border items-center"
-              >
-                <img
-                  src={url}
-                  alt="listing image"
-                  className="w-20 h-20 object-contain rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-```
-
-each image needs to a have a key={} attribute when we are declaring a map() function
-we also need a delete functionality for each image that we upload
-the delete button calls an event listener onClick and we call the handleRemoveImage function.
-
-```
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
-                >
-                  Delete
-                </button>
-```
-
-the stop the handleRemoveImage(index) from automatically executing, we write it as an ambigious function
-
-the handleRemoveImage(index) function is defined as follows:
-
-```
-const handleRemoveImage = (index) => {
-    setFormData({
-      ...formData,
-      imageUrls: formData.imageUrls.filter((_, i) => i !== index),
-    });
-  };
-```
-
-git push
-
-\\
-Complete create listing page functionality
-import useSelector for using currentUser details
-import useNavigate from react-router-dom to navigate to different pages
-
-```
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-```
-
-declare currentUser and naviagate
-
-```
-  const { currentUser } = useSelector((state) => state.user);
-  const navigate = useNavigate();
-```
-
-declare all the default values of all the variables of the form
-
-```
-  const [formData, setFormData] = useState({
-    imageUrls: [],
-    name: "",
-    description: "",
-    address: "",
-    type: "rent",
-    bedrooms: 1,
-    bathrooms: 1,
-    regularPrice: 50,
-    discountPrice: 0,
-    offer: false,
-    parking: false,
-    furnished: false,
-  });
-```
-
-useStates for loading and errors
-
-```
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-```
-
-add onChange={handleChange} event listeners and value={} for every single input field in the form
-define the handleChange function which specifically caters to the different types of input that we accept
-
-```
-const handleChange = (e) => {
-    // This if is for sale and rent
-    if (e.target.id === "sale" || e.target.id === "rent") {
-      setFormData({
-        ...formData,
-        type: e.target.id,
-      });
-    }
-
-    // This if is for parking, furnished and offer
-    if (
-      e.target.id === "parking" ||
-      e.target.id === "furnished" ||
-      e.target.id === "offer"
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.checked,
-      });
-    }
-
-    // This if is for name, description and address
-    if (
-      e.target.type === "number" ||
-      e.target.type === "text" ||
-      e.target.type === "textarea"
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.value,
-      });
-    }
-  };
-```
-
-then add a submit functionality for the entire form with all of its variables
-`<form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">`
-
-define the handleSubmit function:
-
-```
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (formData.imageUrls.length < 1) {
-        return setError("You must upload at least one image!");
-      }
-
-      if (+formData.regularPrice < +formData.discountPrice) {
-        return setError("Discount price must be lower than regular price!");
-      }
-
-      setLoading(true);
-      setError(false);
-
-      const res = await fetch("/api/listing/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          userRef: currentUser._id,
-        }),
-      });
-
-      const data = await res.json();
-      setLoading(false);
-
-      if (data.success === false) {
-        setError(data.message);
-      }
-      navigate(`/listing/${data._id}`);
-    } catch (error) {
-      setError(error.message);
-      setLoading(false);
-    }
-  };
-```
-
-git push
-
-\\
-Create get user listings API route
-
-go to api/controllers/user.controller.js
-define the getUserListings function
-
-```
-export const getUserListings = async (req, res, next) => {
-    if (req.user.id === req.params.id) {
-        try {
-            const listings = await Listing.find({
-                userRef: req.params.id
-            });
-
-            res.status(200).json(listings);
-        } catch (error) {
-            next(error);
-        }
-    } else {
-        return next(errorHandler(401, "You can only view your own listings here!"));
-    }
-}
-```
-
-then go to api/routes/user.route.js and create an endpoint for this function
-
-```
-import { getUserListings } from "../controllers/user.controller.js";
-router.get('/listings/:id', verifyToken, getUserListings);
-```
-
-test on insomnia
-
-git push
-
-\\
-Complete show user listings functionality
-finish designing the UI for this
-
-\\
-Complete delete user listing functionality
-
-1. go to api/controllers/listing.controller.js
-   define the function to delete the user listing
-
-```
-export const deleteListing = async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id);
-
-    if (!listing) {
-        return next(errorHandler(404, "Listing not found!"));
-    }
-
-    if (req.user.id !== listing.userRef) {
-        return next(errorHandler(401, "You can only delete your own listing!"));
-    }
-
-    try {
-        await Listing.findByIdAndDelete(req.params.id);
-        res.status(200).json("Listing has been deleted!")
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-2. go to api/routes/listing.route.js
-
-import the deleteListing function
-`import {deleteListing} from "../controllers/listing.controller.js";`
-
-create the api call and its endpoint
-
-`router.delete('/delete/:id', verifyToken, deleteListing);`
-
-3. go to ui/src/pages/Profile.jsx
-
-go to the <button>Delete</button> and add an onClick event listener to this
-
-```
-<button
-  onClick={() => handleListingDelete(listing._id)}
-  className="text-red-700 uppercase"
->
-  Delete
-</button>
-```
-
-4. define the handleListingDelete() function
-
-```
-  const handleListingDelete = async (listingId) => {
-    try {
-      const res = await fetch(`/api/listing/delete/${listingId}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
-      if (data.success === false) {
-        console.log(data.message);
-        return;
-      }
-
-      setUserListings((prev) => {
-        prev.filter((listing) => listing._id !== listingId);
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-```
-
-test on insomnia
-create a delete request with api: http://localhost:3000/api/listing/delete/:id
-test it for a particular user and try to delete each listing
-
-git push
-
-\\
-Create update listing API route
-follow the same process of building the api as we did for delete.
-
-1. go to api/controllers/listing.controller.js
-
-```
-export const updateListing = async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id);
-
-    if (!listing) {
-        return next(errorHandler(404, "Listing not found!"));
-    }
-
-    if (req.user.id !== listing.userRef) {
-        return next(errorHandler(401, "You can only update your own listings!"));
-    }
-
-    try {
-        const updatedListing = await Listing.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }, // This gives the updated list of values
-        );
-
-        res.status(200).json(updatedListing);
-
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-2. go to api/routes/listing.route.js
-
-```
-import updateListing from "../controllers/listing.controller.js";
-router.post('/update/:id', verifyToken, updateListing);
-```
-
-3. test on insomnia
-   under listing create a post request and name it update a listing
-   the link `localhost:3000/api/listing/update/:id`
-
-git push
-
-\\
-Complete update listing functionality
-
-1. go to api/controllers/listing.controller.js and define the getListing function here
-
-```
-export const getListing = async (req, res, next) => {
-    try {
-        const listing = await Listing.findById(req.params.id);
-
-        if (!listing) {
-            return next(errorHandler(404, "Listing not found!"));
-        }
-        res.status(200).json(listing);
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-2. create the route to get this listing with
-
-```
-import { getListing } from "../controllers/listing.controller.js";
-router.get('/get/:id', getListing);
-```
-
-3. go to ui/src/pages and create a new page called UpdateListing.jsx
-   copy all the contents of the CreateListing.jsx page into the UpdateListing.jsx and change create to update everywhere
-
-4. go to App.jsx
-
-```
-import UpdateListing from "./pages/UpdateListing";
-        <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/create-listing" element={<CreateListing />} />
-          <Route
-            path="/update-listing/:listingId"
-            element={<UpdateListing />}
-          />
-        </Route>
-```
-
-5. go to the profile page and add a <Link></Link> tag which is imported from react-router-dom
-
-```
-                <Link to={`/update-listing/${listing._id}`}>
-                  <button className="text-green-700 uppercase">Edit</button>
-                </Link>
-```
-
-read the UpdateListing.jsx more carefully for better understanding!
-
-git push
-
-\\
-Add image slider to the listing page
-
-1. go to ui/src/pages and create Listing.jsx
-
-2. go to ui root folder and `npm install swiper`
-
-3. go to App.jsx and import the page
-   `import Listing from "./pages/Listing";`
-
-4. This is a public page so just declare this page as a Route within the Routes
-   `<Route path="/listing/:listingId" element={<Listing />} />`
-
-This basically adds the image swiping functionality for our listing pages
-git push
-
-\\
-Complete listing page
-design the listing page completely
-
-\\
-Add contact landlord functionality completely
-
-1. go to api/controllers/user.controller.js and write the getUser function
-
-```
-export const getUser = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return next(errorHandler(404, 'User not found!'));
-        }
-
-        const { password: pass, ...rest } = user._doc;
-        res.status(200).json(rest);
-    } catch (error) {
-        next(error);
-    }
-};
-```
-
-2. go to api/routes/user.route.js
-
-```
-import { deleteUser, test, updateUser, getUserListings, getUser } from "../controllers/user.controller.js";
-router.get('/:id', verifyToken, getUser);
-```
-
-3. Design the entire Contact page and update the changes in Listing.jsx as well so that it can successfully write an email to the user
-
-\\
-
-### Create search API route
-
-1. add a get listing route within the listing.route.js
-
-```
-import { getListings } from "../controllers/listing.controller.js";
-router.get("/get", getListings);
-```
-
-2. define the getListings function within the api/controllers/listing.controller.js
-
-```
-export const getListings = async (req, res, next) => {
-    try {
-        const limit = parseInt(req.query.limit) || 9;
-        const startIndex = parseInt(req.query.startIndex) || 0;
-
-        let offer = req.query.offer;
-        if (offer === undefined || offer === "false") {
-            offer = { $in: [false, true] };
-        }
-
-        let furnished = req.query.furnished;
-        if (furnished === undefined || furnished === "false") {
-            furnished = { $in: [false, true] };
-        }
-
-        let parking = req.query.parking;
-        if (parking === undefined || parking === "false") {
-            parking = { $in: [false, true] };
-        }
-
-        let type = req.query.type;
-        if (type === undefined || type === "all") {
-            type = { $in: ["sale", "rent"] };
-        }
-
-        const searchTerm = req.query.searchTerm || "";
-        const sort = req.query.sort || "createdAt";
-        const order = req.query.order || "desc";
-
-        const listings = await Listing.find({
-            name: { $regex: searchTerm, $options: "i" },
-            offer,
-            furnished,
-            parking,
-            type,
-        }).sort({
-            [sort]: order
-        }).limit(limit).skip(startIndex);
-
-        return res.status(200).json(listings);
-    } catch (error) {
-        next(error);
-    }
-}
-```
-
-1. Function Definition
-   This line defines an asynchronous function getListings, which is exported for use in other parts of your application. The function takes three arguments:
-   req: The request object, which contains information about the HTTP request (e.g., query parameters, headers).
-   res: The response object, used to send back the desired HTTP response.
-   next: A function used to pass control to the next middleware in case of an error.
-2. Try-Catch Block
-   The code inside this try block is executed. If an error occurs, it is caught by the catch block.
-3. Extracting Query Parameters with Defaults
-   These lines extract limit and startIndex from the query parameters in the request (req.query).
-   limit determines how many results to return, with a default value of 9 if not provided.
-   startIndex determines the starting point for pagination, with a default value of 0 if not provided.
-   parseInt is used to convert the query parameters from strings to integers.
-4. Handling Boolean Filters
-   This section deals with the offer query parameter:
-   If offer is undefined or "false", the offer variable is set to an object { $in: [false, true] }. This means the query will include listings where offer can be either false or true.
-   This logic is used to ensure that if no specific offer filter is provided, the query includes all listings.
-   Similar logic applies to the furnished parameter, where the listings can be either furnished or unfurnished if the parameter is not specified.
-   The same logic is used for the parking parameter, allowing listings with or without parking.
-5. Handling Type Filter
-   The type parameter filters listings by their type (e.g., "sale" or "rent").
-   If type is undefined or "all", the type variable is set to include both "sale" and "rent" listings.
-6. Search Term, Sort, and Order Parameters
-   searchTerm: A string to filter listings based on their name, defaulting to an empty string if not provided.
-   sort: The field by which the listings should be sorted, defaulting to "createdAt" (assuming the listings have a creation date).
-   order: The sort order ("asc" for ascending or "desc" for descending), defaulting to "desc" (most recent first).
-7. Database Query Execution
-   Listing.find: Executes a MongoDB query on the Listing collection, using the following filters:
-   name: { $regex: searchTerm, $options: "i" }: Filters listings by name using a case-insensitive regular expression that matches the searchTerm.
-   offer, furnished, parking, type: These are the filters defined earlier.
-   .sort({ [sort]: order }): Sorts the results based on the sort field and order direction.
-   .limit(limit): Limits the number of returned documents to the specified limit.
-   .skip(startIndex): Skips a number of documents, allowing for pagination.
-8. Returning the Result
-   If the query is successful, the results (listings) are returned as a JSON response with a status code of 200 (OK).
-9. Error Handling
-   If an error occurs during the query execution, it is passed to the next function, which typically forwards the error to an error-handling middleware.
-
-\\
-Complete header search form functionality
-
-1. add the import statements
-
-```
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-```
-
-2. add value and onChange event listeners to the search input type
-
-```
-<input
-  type="text"
-  placeholder="Search..."
-  value={searchTerm}
-  onChange={(e) => setSearchTerm(e.target.value)}
-/>
-```
-
-3. place the search functionality icon within the button tags
-
-```
-<button>
-  <FaSearch className="text-slate-600" />
-</button>
-```
-
-4. add an onSubmit event listener to the form
-
-```
-<form onSubmit={handleSubmit}></form>
-```
-
-5. define the handleSubmit function
-```
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set("searchTerm", searchTerm);
-
-    const searchQuery = urlParams.toString();
-    navigate(`/search?${searchQuery}`);
-  };
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const searchTermFromUrl = urlParams.get("searchTerm");
-
-    if (searchTermFromUrl) {
-      setSearchTerm(searchTermFromUrl);
-    }
-  }, [location.search]);
-```
-
-const [searchTerm, setSearchTerm] = useState("");
-
-Initializes searchTerm state with an empty string and provides a function setSearchTerm to update it.
-const navigate = useNavigate();
-
-Gets the navigate function from React Router for programmatic navigation.
-const handleSubmit = (e) => {
-
-Defines a function handleSubmit to handle form submissions.
-e.preventDefault();
-
-Prevents the default form submission behavior.
-const urlParams = new URLSearchParams(window.location.search);
-
-Creates a URLSearchParams object to manage query parameters from the current URL.
-urlParams.set("searchTerm", searchTerm);
-
-Updates the searchTerm query parameter with the current value of searchTerm state.
-const searchQuery = urlParams.toString();
-
-Converts the updated query parameters to a string.
-navigate(/search?${searchQuery});
-
-Navigates to the /search page with the updated query parameters.
-useEffect(() => {
-
-Sets up a side effect that runs when location.search changes.
-const urlParams = new URLSearchParams(location.search);
-
-Retrieves the query parameters from the current URL.
-const searchTermFromUrl = urlParams.get("searchTerm");
-
-Extracts the searchTerm from the query parameters.
-if (searchTermFromUrl) {
-
-Checks if searchTerm exists in the URL.
-setSearchTerm(searchTermFromUrl);
-
-Updates the searchTerm state with the value from the URL.
-}, [location.search]);
-
-Re-runs the effect whenever location.search changes.
-
-\\
-Create search page UI
-designed the UI for Search.jsx
-
-\\
-Add onChange and onSubmit functionality to the search page
-
-\\
-Create the listings item component and show listings
-``` npm install -D @tailwindcss/line-clamp ```
-the above is used to clamp a two line truncated statement
-
-\\
-Add show more listings functionality
-
-1. add the show more listings button in the same div as the loading display
-```
-          {/* show more listings button */}
-          {showMore && (
-            <button
-              onClick={onShowMoreClick}
-              className="text-green-700 hover:underline p-7 text-center w-full"
-            >
-              Show more
-            </button>
-          )}
-```
-
-2. define the onShowMoreClick function
-```
-  const onShowMoreClick = async () => {
-    const numberOfListings = listings.length;
-    const startIndex = numberOfListings;
-    const urlParams = new URLSearchParams(location.search);
-    urlParams.set("startIndex", startIndex);
-    const searchQuery = urlParams.toString();
-    const res = await fetch(`/api/listing/get?${searchQuery}`);
-    const data = await res.json();
-
-    if (data.length < 9) {
-      setShowMore(false);
-    }
-    setListings([...listings, ...data]);
-  };
-```
-
-git push
-
-\\
-Complete home page
-
-designed and added all the necessary elements to the Home.jsx page including swiper
-
-\\
-Complete About page
-
-Designed and completed the about page
-
-\\
-Deploy to render
-
-1. go to root folder package.json and add a script
-``` "build": "npm install && npm install --prefix serenity-homes-ui && npm run build --prefix serenity-homes-ui" ```
-
-2. go to api/index.js
-in the index.js
-
-```
-import path from "path";
-
-const __dirname = path.resolve();
-
-app.use(express.static(path.join(__dirname, "/serenity-homes-ui/dist/")));
-
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "serenity-homes-ui", "dist", "index.html"));
-});
-```
-
-git push
-
-\\
-go to render 
-create an account if you don't have one 
 
 
 
